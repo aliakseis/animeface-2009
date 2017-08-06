@@ -5,6 +5,9 @@
 #include "nv_face_detect.h"
 #include "nv_face_feature.h"
 #include "nv_face_detect_internal.h"
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 
 #define NV_FACE_DETECT_MAX_CANDIDATES 8192
 

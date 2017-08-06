@@ -2,6 +2,9 @@
 #include "nv_core_matrix.h"
 #include "nv_core_util.h"
 #include <time.h>
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 
 #define IA 16807
 #define IM 2147483647

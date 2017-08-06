@@ -40,7 +40,7 @@ nv_matrix_t *nv_matrix_alloc(int n, int m)
 		return NULL;
 	}
 	mem = ((char *)matrix) + sizeof(nv_matrix_t);
-	matrix->v = (float *)(((char *)mem) + 0x10 - ((unsigned int)mem & 0xf));
+	matrix->v = (float *)(((char *)mem) + 0x10 - ((size_t)mem & 0xf));
 
 	matrix->list = 1;
 
@@ -84,7 +84,7 @@ nv_matrix_t *nv_matrix_list_alloc(int n, int m, int list)
 		return NULL;
 	}
 	mem = ((char *)matrix) + sizeof(nv_matrix_t);
-	matrix->v = (float *)(((char *)mem) + 0x10 - ((unsigned int)mem & 0xf));
+	matrix->v = (float *)(((char *)mem) + 0x10 - ((size_t)mem & 0xf));
 
 	matrix->list = list;
 	matrix->n = n;
@@ -209,7 +209,7 @@ void nv_matrix_dump_c(FILE *out, const nv_matrix_t *mat, const char *name, int s
 		}
 		fprintf(out, "\n");
 	}
-	fprintf(out, "};\n", name);
+	fprintf(out, "};\n");
 	fprintf(out, "%snv_matrix_t %s = {\n %d, %d, %d, %d, %d, %d, %d, %d, %s_v\n};\n",
 		static_variable ? "static ":"",
 		name, mat->list, mat->list_step, mat->n, mat->m, mat->rows, mat->cols, mat->step, 0,

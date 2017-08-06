@@ -74,3 +74,6 @@ nvxs/CLAPACK/TESTING/xlintstds
 nvxs/CLAPACK/TESTING/xlintsts
 nvxs/CLAPACK/TESTING/xlintstz
 nvxs/CLAPACK/TESTING/xlintstzc
+
+# CMake stuff
+build/

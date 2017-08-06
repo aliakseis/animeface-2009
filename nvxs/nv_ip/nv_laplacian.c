@@ -1,5 +1,8 @@
 #include "nv_core.h"
 #include "nv_ip_laplacian.h"
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 
 #define NV_LAPLACIAN_KERNEL_SIZE 3
 
