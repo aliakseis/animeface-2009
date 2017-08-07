@@ -29,13 +29,6 @@ extern "C" {
 #endif
 #endif
 
-#if NV_ENABLE_CLOCK
-unsigned long nv_clock(void);
-#endif
-#if NV_ENABLE_SLEEP
-void nv_sleep(unsigned int msec);
-#endif
-
 // aligne
 #if __GNUC__
 #define NV_ALIGNED(typed, variable, align_size) typed variable __attribute__((aligned(align_size)))

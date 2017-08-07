@@ -9,11 +9,6 @@ extern "C" {
 #include "f2c.h"
 #include "clapack.h"
 
-
-// ilaenv
-integer ilaenv_(integer *, char *, char *, integer *, integer *, 
-				integer *, integer *);
-
 #ifdef __cplusplus
 }
 #endif

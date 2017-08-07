@@ -15,14 +15,15 @@ Figure (c) namco
 
 Requirements
 - Ruby
+- OpenCV
+- LAPACK
 - ImageMagick
-- gcc, make
+- gcc, make, cmake
 
 ### Ubuntu
 ```
-sudo apt-get install libmagickwand-dev
+sudo apt install ruby ruby-dev liblapacke-dev libopencv-dev libmagickwand-dev cmake 
 sudo gem install rmagick
-./build.sh
 ```
 
 ### Arch Linux

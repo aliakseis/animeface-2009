@@ -18,7 +18,7 @@ nv_face_detect(nv_face_position_t *face_pos,
 			   int maxface,
 			   const nv_matrix_t *gray_integral, 
 			   const nv_matrix_t *edge_integral, 
-			   const cv::Rect *image_size,
+			   const CvRect *image_size,
 			   const nv_mlp_t *dir_mlp,
 			   const nv_mlp_t *detector_mlp,
 			   const nv_mlp_t **bagging_mlp, int bagging_mlps,
@@ -32,8 +32,6 @@ nv_face_detect(nv_face_position_t *face_pos,
 	nv_candidate candidates[NV_FACE_DETECT_MAX_CANDIDATES] = {}; // max
 	int i, j;
 	float scale = min_window_size / 32.0f;
-	float xs = 0.0f;
-	float ys = 0.0f;
 	int ncandidate = 0;
 	int nface;
 #ifdef _OPENMP
@@ -48,8 +46,8 @@ nv_face_detect(nv_face_position_t *face_pos,
 	}
 	while (std::min(image_size->width, image_size->height) / scale > min_window_size) {
 		int window = (int)(32.0f * scale);
-		int ye = (int)((image_size->height - (32.0f * scale) - ys) / (step * scale));
-		int xe = (int)((image_size->width - (32.0f * scale) - xs) / (step * scale));
+		int ye = (int)((image_size->height - 32.0f * scale) / (step * scale));
+		int xe = (int)((image_size->width - 32.0f * scale) / (step * scale));
 
 #ifdef _OPENMP
 #pragma omp parallel for num_threads(threads) schedule(dynamic, 1)
@@ -62,17 +60,15 @@ nv_face_detect(nv_face_position_t *face_pos,
 #endif
 			int yi = i / xe;
 			int xi = i % xe;
-			int y = (int)(ys + (yi * step * scale));
-			int x = (int)(xs + (xi * step * scale));
+			int y = (int)(yi * step * scale);
+			int x = (int)(xi * step * scale);
 			double z1, z;
 			int label;
 			int ex = NV_ROUND_INT(x + (scale * 32.0f));
 			int ey = NV_ROUND_INT(y + (scale * 32.0f));
 			float area;
 
-			if (ex >= image_size->width
-				|| ey >= image_size->height)
-			{
+			if (ex >= image_size->width || ey >= image_size->height) {
 				continue;
 			}
 			// ÉGÉbÉWÇ≈é}ä†ÇË
@@ -187,10 +183,7 @@ nv_face_detect(nv_face_position_t *face_pos,
 			float d = candidates[i].rect.width;
 
 			face_pos[nface].likelihood = (float)candidates[i].z;
-			face_pos[nface].face.x = candidates[i].rect.x;
-			face_pos[nface].face.y = candidates[i].rect.y;
-			face_pos[nface].face.width = candidates[i].rect.width;
-			face_pos[nface].face.height = candidates[i].rect.height;
+			face_pos[nface].face = candidates[i].rect;
 			face_pos[nface].right_eye.x = NV_ROUND_INT(candidates[i].rect.x + d * (NV_MAT_V(candidates[i].parts, 0, 0) - (NV_MAT_V(candidates[i].parts, 0, 2))));
 			face_pos[nface].right_eye.y = NV_ROUND_INT(candidates[i].rect.y + d * (NV_MAT_V(candidates[i].parts, 0, 1) - (NV_MAT_V(candidates[i].parts, 0, 3))));
 			face_pos[nface].right_eye.width = NV_ROUND_INT(d * NV_MAT_V(candidates[i].parts, 0, 2) * 2.0f);

@@ -15,27 +15,6 @@
 #define NV_EYE_COLOR_SAMPLES 256
 #define NV_EYE_COLOR_CLASS 5
 
-static int
-nv_color_nn(const nv_matrix_t *means, int mean_m,
-			const nv_matrix_t *data,
-			const nv_matrix_t *labels)
-{
-	int m, idx = 0;
-	float min_dist = FLT_MAX;
-	float mean_label = (float)mean_m;
-
-	for (m = 0; m < data->m; ++m) {
-		if (NV_MAT_V(labels, m, 0) == mean_label) {
-			float dist = nv_euclidean2(means, mean_m, data, m);
-			if (dist < min_dist) {
-				min_dist = dist;
-				idx = m;
-			}
-		}
-	}
-	return idx;
-}
-
 static void
 nv_get_skin_color(nv_color_t *skin_color,
 				  nv_cov_t *skin_cov,
@@ -204,7 +183,7 @@ static void nv_get_eye_color(nv_color_t *eye_colors,
 							 const nv_cov_t *skin_cov,
 							 const nv_color_t *hair_color,
 							 const nv_cov_t *hair_cov,
-							 const cv::Rect *eye_rect,
+							 const CvRect *eye_rect,
 							 const nv_matrix_t *img)
 {
 	int m, c;

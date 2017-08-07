@@ -39,41 +39,10 @@ void nv_color_euclidean2bgr_scalar(nv_matrix_t *bgr, int bgr_m, const nv_matrix_
 	NV_MAT_V(bgr, bgr_m, 2) = v_0_255(NV_MAT_V(bgr, bgr_m, 2));
 }
 
-
-void nv_color_euclidean2bgr(nv_matrix_t *bgr, const nv_matrix_t *ec)
-{
-	int m;
-
-	assert(ec->n == bgr->n && ec->n == 3);
-	assert(ec->m == bgr->m);
-
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
-	for (m = 0; m < bgr->m; ++m) {
-		nv_color_euclidean2bgr_scalar(bgr, m, ec, m);
-	}
-}
-
 void nv_color_bgr2euclidean_scalar(nv_matrix_t *ec, int ec_m, const nv_matrix_t *bgr, int bgr_m)
 {
 	assert(ec->n == bgr->n && ec->n == 3);
 	NV_MAT_V(ec, ec_m, 0) = floorf((NV_MAT_V(bgr, bgr_m, NV_CH_R) + NV_MAT_V(bgr, bgr_m, NV_CH_G) + NV_MAT_V(bgr, bgr_m, NV_CH_B)) / 3.0f);
 	NV_MAT_V(ec, ec_m, 1) = floorf((NV_MAT_V(bgr, bgr_m, NV_CH_R) + (255.0f - NV_MAT_V(bgr, bgr_m, NV_CH_B))) / 2.0f);
 	NV_MAT_V(ec, ec_m, 2) = floorf((NV_MAT_V(bgr, bgr_m, NV_CH_R) + 2.0f * (255.0f - NV_MAT_V(bgr, bgr_m, NV_CH_G)) + NV_MAT_V(bgr, bgr_m, NV_CH_B)) / 4.0f);
-}
-
-void nv_color_bgr2euclidean(nv_matrix_t *ec, const nv_matrix_t *bgr)
-{
-	int m;
-
-	assert(ec->n == bgr->n && ec->n == 3);
-	assert(ec->m == bgr->m);
-
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
-	for (m = 0; m < ec->m; ++m) {
-		nv_color_bgr2euclidean_scalar(ec, m, bgr, m);
-	}
 }

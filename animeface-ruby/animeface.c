@@ -108,7 +108,7 @@ VALUE detect(VALUE im,
 	VALUE facehash, tmphash1, tmphash2, colors, pixel;
 	
 	int i, j, nface;
-	nv_rect_t image_size;
+	CvRect image_size;
 	nv_face_position_t face_pos[NV_MAX_FACE];
 	int xsize = NUM2INT(rb_funcall(im, rb_intern("columns"), 0));
 	int ysize = NUM2INT(rb_funcall(im, rb_intern("rows"), 0));

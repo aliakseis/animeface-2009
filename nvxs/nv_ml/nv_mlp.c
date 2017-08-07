@@ -44,26 +44,6 @@ void nv_mlp_free(nv_mlp_t **mlp)
 	*mlp = NULL;
 }
 
-void nv_mlp_dump_c(FILE *out, const nv_mlp_t *mlp, const char *name, int static_variable)
-{
-	char var_name[4][1024];
-
-	snprintf(var_name[0], sizeof(var_name[0]), "%s_input_w", name);
-	nv_matrix_dump_c(out, mlp->input_w, var_name[0], 1);
-	snprintf(var_name[1], sizeof(var_name[1]), "%s_hidden_w", name);
-	nv_matrix_dump_c(out, mlp->hidden_w, var_name[1], 1);
-	snprintf(var_name[2], sizeof(var_name[2]), "%s_input_bias", name);
-	nv_matrix_dump_c(out, mlp->input_bias, var_name[2], 1);
-	snprintf(var_name[3], sizeof(var_name[3]), "%s_hidden_bias", name);
-	nv_matrix_dump_c(out, mlp->hidden_bias, var_name[3], 1);
-
-	fprintf(out, "%snv_mlp_t %s = {\n %d, %d, %d, &%s, &%s, &%s, &%s\n};\n",
-		static_variable ? "static ":"",
-		name, mlp->input, mlp->hidden, mlp->output,
-		var_name[0],  var_name[1],  var_name[2],  var_name[3]);
-	fflush(out);
-}
-
 // ƒNƒ‰ƒX•ª—Ş
 
 int nv_mlp_predict_label(const nv_mlp_t *mlp, const nv_matrix_t *x, int xm)

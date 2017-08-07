@@ -1,20 +1,22 @@
 #!/bin/sh
 
-cdir=`pwd`
-install_dir=${cdir}/install
-mkdir -p $install_dir
+cdir=$(pwd)
 
 # nvxs
-cd nvxs
-./configure --prefix $install_dir --enable-openmp
-make all
+cd "${cdir}/nvxs"
+mkdir -p build
+cd build
+cmake -DCMAKE_BUILD_TYPE=Release ..
+make -j$(nproc)
 make install
-cd ${cdir}
 
 # ruby ext
-cd animeface-ruby
-ruby extconf_local.rb
-make
+cd "${cdir}/animeface-ruby"
+mkdir -p build
+cd build
+cmake -DCMAKE_BUILD_TYPE=Release ..
+make -j$(nproc)
+make install
 
 echo -n "\n\nCheck:"
 echo " % cd animeface-ruby"

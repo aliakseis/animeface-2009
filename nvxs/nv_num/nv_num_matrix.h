@@ -7,10 +7,6 @@
 extern "C" {
 #endif
 
-nv_matrix_t *nv_matrix_tr(const nv_matrix_t *mat);
-nv_matrix_t *nv_matrix3d_tr(const nv_matrix_t *mat);
-
-
 // blas
 typedef enum {
 	NV_MAT_TR,
@@ -22,22 +18,6 @@ void nv_gemv(nv_matrix_t *y, int ym,
 			 const nv_matrix_t *a,
 			 const nv_matrix_t *x,
 			 int xm);
-
-int nv_gesv(nv_matrix_t *x, int xm,
-			const nv_matrix_t *a, // NxN Matrix
-			const nv_matrix_t *b, // N-Vector
-			int bm);
-
-int nv_gels(nv_matrix_t *x, int xm,
-			const nv_matrix_t *a, // NxN Matrix
-			const nv_matrix_t *b, // N-Vector
-			int bm);
-
-int nv_gelss(nv_matrix_t *x,
-			 nv_matrix_t *s, // NxN Matrix
-			 const nv_matrix_t *a, // NxN Matrix
-			 const nv_matrix_t *b); // N-Matrix
-
 
 #ifdef __cplusplus
 }

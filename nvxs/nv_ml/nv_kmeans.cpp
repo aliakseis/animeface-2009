@@ -84,50 +84,6 @@ nv_kmeans_init(nv_matrix_t *means, int k,
 	nv_matrix_free(&min_dists);
 }
 
-// 最長距離での初期値選択
-static void 
-nv_kmeans_init_max(nv_matrix_t *means, int k, const nv_matrix_t *data)
-{
-	int m, c;
-	nv_matrix_t *min_dists = nv_matrix_alloc(1, data->m);
-	int rnd = (int)((data->m - 1) * nv_rand());
-
-	// 1つ目
-	nv_vector_copy(means, 0, data, rnd);
-	for (m = 0; m < data->m; ++m) {
-		NV_MAT_V(min_dists, m, 0) = nv_euclidean2(means, 0, data, m);
-	}
-	// 最短距離クラスから一番遠い要素を選択
-	for (c = 1; c < k; ++c) {
-		float max_dist = -FLT_MAX;
-		int max_index = -1;
-
-		for (m = 0; m < data->m; ++m) {
-			float dist = std::min(nv_euclidean2(means, c - 1, data, m), NV_MAT_V(min_dists, m, 0));
-			if (dist > max_dist) {
-				max_dist = dist;
-				max_index = m;
-			}
-			NV_MAT_V(min_dists, m, 0) = dist;
-		}
-		nv_vector_copy(means, c, data, max_index);
-	}
-
-	nv_matrix_free(&min_dists);
-}
-
-// ランダム初期値選択 カブル
-static void 
-nv_kmeans_init_rand(nv_matrix_t *means, int k, const nv_matrix_t *data)
-{
-	int c;
-
-	for (c = 0; c < k; ++c) {
-		int rnd = (int)((data->m - 1) * nv_rand());
-		nv_vector_copy(means, c, data, rnd);
-	}
-}
-
 int 
 nv_kmeans(nv_matrix_t *means,  // k
 		  nv_matrix_t *count,  // k

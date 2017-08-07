@@ -53,23 +53,19 @@ set(NVXS_PUBLIC_HEADER
     nv_ml/nv_ml_gaussian.h
     nv_ml/nv_ml_kmeans.h
     nv_ml/nv_ml_mlp.h
-    
-    CLAPACK/INCLUDE/blaswrap.h CLAPACK/INCLUDE/clapack.h CLAPACK/INCLUDE/f2c.h
 )
 
 set_target_properties(nvxs PROPERTIES PUBLIC_HEADER "${NVXS_PUBLIC_HEADER}")
 
 include_directories(nv_face nv_core nv_ip nv_num nv_ml)
 
-#find_package(clapack REQUIRED)
-#include_directories(${CLAPACK_INCLUDE_DIRS})
-#target_link_libraries(nvxs ${CLAPACK_LIBRARY})
-include_directories(CLAPACK/INCLUDE)
-target_link_libraries(nvxs "${CMAKE_CURRENT_SOURCE_DIR}/CLAPACK/liblapack_nvxs.a" "${CMAKE_CURRENT_SOURCE_DIR}/CLAPACK/libblas_nvxs.a" "${CMAKE_CURRENT_SOURCE_DIR}/CLAPACK/libtmglib_nvxs.a" "${CMAKE_CURRENT_SOURCE_DIR}/CLAPACK/F2CLIBS/libf2c.a")
-
 find_package(OpenCV REQUIRED)
 include_directories("${OpenCV_INCLUDE_DIRS}")
 target_link_libraries(nvxs "${OpenCV_LIBS}")
+
+find_package(LAPACK REQUIRED)
+target_compile_options(nvxs PUBLIC "${LAPACK_LINKER_FLAGS}")
+target_link_libraries(nvxs "${LAPACK_LIBRARIES}")
 
 find_package(OpenMP)
 if(OPENMP_FOUND)
