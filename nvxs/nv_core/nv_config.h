@@ -16,12 +16,12 @@
 
 #else
 // VC++
-#define NV_ENABLE_CUDA   1  // CUDAを使うか
+#define NV_ENABLE_CUDA   0  // CUDAを使うか
 #define NV_ENABLE_CLOCK  1  // nv_clockを使うか
 #define NV_ENABLE_SLEEP  1  // nv_sleepを使うか
 #define NV_ENABLE_SSE2   1  // SSE2を使うか
 #define NV_ENABLE_OPENCV 1  // OpenCV変換を使うか
-#define NV_XS            0  // Perl用
+#define NV_XS            1  // Perl用
 
 #endif
 #endif

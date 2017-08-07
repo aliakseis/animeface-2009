@@ -51,17 +51,6 @@ void nv_sleep(unsigned int msec);
 // roundf
 #define NV_ROUND_INT(x) ((int)(0.5f + x))
 
-// min max
-#ifndef max
-#define max(a, b) ((a) > (b) ? (a):(b))
-#endif
-#ifndef min
-#define min(a, b) ((a) < (b) ? (a):(b))
-#endif
-
-
-
-
 #ifdef __cplusplus
 }
 #endif

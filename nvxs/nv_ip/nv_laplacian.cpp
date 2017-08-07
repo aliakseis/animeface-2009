@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "nv_core.h"
 #include "nv_ip_laplacian.h"
 #ifdef _OPENMP
@@ -73,14 +74,14 @@ void nv_laplacian(nv_matrix_t *edge,
 						 * kernel[krow][kcol];
 				}
 			}
-			v = max(v, 0.0f);
+			v = std::max(v, 0.0f);
 			if (level != 0.0f) {
-				NV_MAT3D_V(edge, row, col, 0) = min(v * level, 255.0f);
+				NV_MAT3D_V(edge, row, col, 0) = std::min(v * level, 255.0f);
 			} else {
 #ifdef _OPENMP
-				thread_max_v[thread_index] = max(v, thread_max_v[thread_index]);
+				thread_max_v[thread_index] = std::max(v, thread_max_v[thread_index]);
 #else
-				max_v = max(v, max_v);
+				max_v = std::max(v, max_v);
 #endif
 				NV_MAT3D_V(edge, row, col, 0) = v;
 			}
@@ -90,7 +91,7 @@ void nv_laplacian(nv_matrix_t *edge,
 #ifdef _OPENMP
 	if (level == 0.0f) {
 		for (i = 0; i < threads; ++i) {
-			max_v = max(max_v, thread_max_v[i]);
+			max_v = std::max(max_v, thread_max_v[i]);
 		}
 	}
 #endif

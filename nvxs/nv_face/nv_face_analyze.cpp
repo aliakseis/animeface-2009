@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "nv_core.h"
 #include "nv_num.h"
 #include "nv_ip.h"
@@ -47,11 +48,11 @@ nv_get_skin_color(nv_color_t *skin_color,
 	nv_matrix_t *means = nv_matrix_alloc(3, NV_SKIN_COLOR_CLASS);
 	nv_matrix_t *count = nv_matrix_alloc(1, NV_SKIN_COLOR_CLASS);
 	int m, max_label, k, skin_m;
-	nv_rect_t skin_rect;
+	cv::Rect skin_rect;
 
 	// –Ú‚ÆŒû‚ÌŠÔ
 	skin_rect.x = face->right_eye.x;
-	skin_rect.y = max(
+	skin_rect.y = std::max(
 		face->left_eye.y + face->left_eye.height,
 		face->right_eye.y + face->left_eye.height);
 	skin_rect.width = face->left_eye.x + face->left_eye.width - face->right_eye.x;
@@ -65,7 +66,7 @@ nv_get_skin_color(nv_color_t *skin_color,
 	}
 	// –Ú‚Æ–Ú‚ÌŠÔ
 	skin_rect.x = face->right_eye.x + face->right_eye.width;
-	skin_rect.y = min(face->left_eye.y, face->right_eye.y);
+	skin_rect.y = std::min(face->left_eye.y, face->right_eye.y);
 	skin_rect.width = face->left_eye.x - skin_rect.x;
 	skin_rect.height = face->nose.y - skin_rect.y;
 
@@ -119,14 +120,14 @@ static void nv_get_hair_color(nv_color_t *hair_color,
 	nv_matrix_t *skin_likelihood = nv_matrix_alloc(1, NV_HAIR_COLOR_SAMPLES);
 	nv_matrix_t *likelihood_means = nv_matrix_alloc(1, NV_HAIR_COLOR_CLASS);
 	int m, max_label, skin_label, hair_m;
-	nv_rect_t hair_rect;
+	cv::Rect hair_rect;
 	int k;
 
 	// –Ú‚Ìã‚©‚çŠç‚Ì1/3
 	hair_rect.x = face->right_eye.x;
-	hair_rect.y = max(0, min(face->left_eye.y, face->right_eye.y) - face->face.height / 3);
+	hair_rect.y = std::max(0, std::min(face->left_eye.y, face->right_eye.y) - face->face.height / 3);
 	hair_rect.width = face->left_eye.x + face->left_eye.width - hair_rect.x;
-	hair_rect.height = min(face->left_eye.y, face->right_eye.y) - hair_rect.y;
+	hair_rect.height = std::min(face->left_eye.y, face->right_eye.y) - hair_rect.y;
 
 	if (hair_rect.y + hair_rect.height >= img->rows) {
 		hair_rect.height = img->rows - hair_rect.y;
@@ -203,7 +204,7 @@ static void nv_get_eye_color(nv_color_t *eye_colors,
 							 const nv_cov_t *skin_cov,
 							 const nv_color_t *hair_color,
 							 const nv_cov_t *hair_cov,
-							 const nv_rect_t *eye_rect,
+							 const cv::Rect *eye_rect,
 							 const nv_matrix_t *img)
 {
 	int m, c;
@@ -389,7 +390,7 @@ float nv_eye_ratio(const nv_face_position_t *face)
 	float left = (float)face->left_eye.width / face->left_eye.height;
 	float right = (float)face->right_eye.width / face->right_eye.height;
 
-	return max(left, right);
+	return std::max(left, right);
 }
 
 float nv_face_ratio(const nv_face_position_t *face)
@@ -397,7 +398,7 @@ float nv_face_ratio(const nv_face_position_t *face)
 	float left = (float)face->left_eye.width / face->left_eye.height;
 	float right = (float)face->right_eye.width / face->right_eye.height;
 	float eye_height = (float)((left > right) ? face->left_eye.height: face->right_eye.height);
-	float face_height = (float)max(face->left_eye.y, face->right_eye.y) - face->chin.y;
+	float face_height = (float)std::max(face->left_eye.y, face->right_eye.y) - face->chin.y;
 
 	return face_height / eye_height;
 }

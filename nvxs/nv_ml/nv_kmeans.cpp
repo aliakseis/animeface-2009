@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "nv_core.h"
 #include "nv_ml.h"
 #include "nv_num.h"
@@ -60,7 +61,7 @@ nv_kmeans_init(nv_matrix_t *means, int k,
 			}
 			new_potential = 0.0f;
 			for (i = 0; i < data->m; ++i) {
-				new_potential += min(
+				new_potential += std::min(
 					nv_euclidean2(data, m, data, i),
 					NV_MAT_V(min_dists, i, 0)
 				);
@@ -72,7 +73,7 @@ nv_kmeans_init(nv_matrix_t *means, int k,
 		}
 		nv_vector_copy(means, c, data, best_index);
 		for (m = 0; m < data->m; ++m) {
-			NV_MAT_V(min_dists, m, 0) = min(
+			NV_MAT_V(min_dists, m, 0) = std::min(
 				nv_euclidean2(data, m, data, best_index),
 				NV_MAT_V(min_dists, m, 0)
 			);
@@ -102,7 +103,7 @@ nv_kmeans_init_max(nv_matrix_t *means, int k, const nv_matrix_t *data)
 		int max_index = -1;
 
 		for (m = 0; m < data->m; ++m) {
-			float dist = min(nv_euclidean2(means, c - 1, data, m), NV_MAT_V(min_dists, m, 0));
+			float dist = std::min(nv_euclidean2(means, c - 1, data, m), NV_MAT_V(min_dists, m, 0));
 			if (dist > max_dist) {
 				max_dist = dist;
 				max_index = m;

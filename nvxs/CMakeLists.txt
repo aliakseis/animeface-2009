@@ -2,14 +2,14 @@ cmake_minimum_required(VERSION 2.6)
 project(nvxs)
 
 add_library(nvxs SHARED
-    nv_face/nv_face_analyze.c
+    nv_face/nv_face_analyze.cpp
     nv_face/nv_face_haarlike.c
-    nv_face/nv_face_detect.c
+    nv_face/nv_face_detect.cpp
     nv_face/nv_face_mlp_static.c
     nv_core/nv_core_matrix.c
     nv_core/nv_core_util.c
     nv_ml/nv_gaussian.c
-    nv_ml/nv_kmeans.c
+    nv_ml/nv_kmeans.cpp
     nv_ml/nv_mlp.c
     nv_num/nv_cov.c
     nv_num/nv_eigen.c
@@ -17,11 +17,11 @@ add_library(nvxs SHARED
     nv_num/nv_distance.c
     nv_num/nv_matrix.c
     nv_ip/nv_euclidean_color.c
-    nv_ip/nv_gaussian5x5.c
+    nv_ip/nv_gaussian5x5.cpp
     nv_ip/nv_gray.c
     nv_ip/nv_gray_cpu.c
     nv_ip/nv_integral.c
-    nv_ip/nv_laplacian.c
+    nv_ip/nv_laplacian.cpp
 )
 
 set(NVXS_PUBLIC_HEADER
@@ -67,6 +67,10 @@ include_directories(nv_face nv_core nv_ip nv_num nv_ml)
 include_directories(CLAPACK/INCLUDE)
 target_link_libraries(nvxs "${CMAKE_CURRENT_SOURCE_DIR}/CLAPACK/liblapack_nvxs.a" "${CMAKE_CURRENT_SOURCE_DIR}/CLAPACK/libblas_nvxs.a" "${CMAKE_CURRENT_SOURCE_DIR}/CLAPACK/libtmglib_nvxs.a" "${CMAKE_CURRENT_SOURCE_DIR}/CLAPACK/F2CLIBS/libf2c.a")
 
+find_package(OpenCV REQUIRED)
+include_directories("${OpenCV_INCLUDE_DIRS}")
+target_link_libraries(nvxs "${OpenCV_LIBS}")
+
 find_package(OpenMP)
 if(OPENMP_FOUND)
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
@@ -76,4 +80,4 @@ endif()
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     set( CMAKE_INSTALL_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/../install" CACHE PATH "Install path prefix, prepended onto install directories." FORCE)
 endif()
-install(TARGETS nvxs LIBRARY DESTINATION lib PUBLIC_HEADER DESTINATION include)
+install(TARGETS nvxs RUNTIME DESTINATION path LIBRARY DESTINATION lib PUBLIC_HEADER DESTINATION include)

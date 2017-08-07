@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "nv_core.h"
 #include "nv_ip_gaussian.h"
 
@@ -47,7 +48,7 @@ void nv_gaussian5x5(nv_matrix_t *dest, int dch, const nv_matrix_t *src, int sch)
 						 * kernel[krow][kcol];
 				}
 			}
-			NV_MAT3D_V(dest, row, col, dch) = min(v * scale, 255.0f);
+			NV_MAT3D_V(dest, row, col, dch) = std::min(v * scale, 255.0f);
 		}
 	}
 }
