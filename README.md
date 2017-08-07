@@ -24,6 +24,7 @@ Requirements
 ```
 sudo apt install ruby ruby-dev liblapacke-dev libopencv-dev libmagickwand-dev cmake 
 sudo gem install rmagick
+./build.sh
 ```
 
 ### Arch Linux

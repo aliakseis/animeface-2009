@@ -1,7 +1,6 @@
 #include "nv_core.h"
 #include "nv_num_eigen.h"
 #include <lapacke.h>
-#include <stdio.h>
 
 #define NV_SYMBOL_N "N"
 #define NV_SYMBOL_V "V"
@@ -24,7 +23,6 @@ int nv_eigen_dm(nv_matrix_t *eigen_vec,
 		&& eigen_vec->m == dmat->m
 		&& eigen_val->n == 1
 		&& eigen_val->m == eigen_vec->m);
-	printf("nv_eigen_dm(n=%d, m=%d)\n", eigen_vec->n, eigen_vec->m);
 	nv_matrix_zero(eigen_val);
 	nv_matrix_copy(eigen_vec, 0, dmat, 0, dmat->m);
 	lwork = (nb + 2) * eigen_vec->n;
