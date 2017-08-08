@@ -2,7 +2,6 @@
 #define __NV_NUM_VECTOR_H
 
 #include "nv_core.h"
-#include "nv_num_matrix.h"
 
 #ifdef __cplusplus
 extern "C" {

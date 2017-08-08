@@ -6,17 +6,15 @@ cdir=$(pwd)
 cd "${cdir}/nvxs"
 mkdir -p build
 cd build
-cmake -DCMAKE_BUILD_TYPE=Release ..
-make -j$(nproc)
-make install
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="${cdir}/install" ..
+make -j$(nproc) install
 
 # ruby ext
 cd "${cdir}/animeface-ruby"
 mkdir -p build
 cd build
 cmake -DCMAKE_BUILD_TYPE=Release ..
-make -j$(nproc)
-make install
+make -j$(nproc) install
 
 echo -n "\n\nCheck:"
 echo " % cd animeface-ruby"

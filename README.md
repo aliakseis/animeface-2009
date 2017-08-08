@@ -16,13 +16,13 @@ Figure (c) namco
 Requirements
 - Ruby
 - OpenCV
-- LAPACK
+- Eigen3
 - ImageMagick
 - gcc, make, cmake
 
 ### Ubuntu
 ```
-sudo apt install ruby ruby-dev liblapacke-dev libopencv-dev libmagickwand-dev cmake 
+sudo apt install ruby ruby-dev libeigen3-dev libopencv-dev libmagickwand-dev cmake 
 sudo gem install rmagick
 ./build.sh
 ```

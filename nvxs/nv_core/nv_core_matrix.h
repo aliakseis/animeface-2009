@@ -1,8 +1,6 @@
 #ifndef __NV_MATRIX_H
 #define __NV_MATRIX_H
 
-#include <stdio.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif

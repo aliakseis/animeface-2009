@@ -8,14 +8,12 @@ add_library(nvxs SHARED
     nv_face/nv_face_mlp_static.c
     nv_core/nv_core_matrix.c
     nv_core/nv_core_util.c
-    nv_ml/nv_gaussian.c
+    nv_ml/nv_gaussian.cpp
     nv_ml/nv_kmeans.cpp
     nv_ml/nv_mlp.c
     nv_num/nv_cov.c
-    nv_num/nv_eigen.c
     nv_num/nv_vector.c
     nv_num/nv_distance.c
-    nv_num/nv_matrix.c
     nv_ip/nv_euclidean_color.c
     nv_ip/nv_gaussian5x5.cpp
     nv_ip/nv_gray.c
@@ -45,9 +43,6 @@ set(NVXS_PUBLIC_HEADER
     nv_num/nv_num.h
     nv_num/nv_num_cov.h
     nv_num/nv_num_distance.h
-    nv_num/nv_num_eigen.h
-    nv_num/nv_num_lapack.h
-    nv_num/nv_num_matrix.h
     nv_num/nv_num_vector.h
     nv_ml/nv_ml.h
     nv_ml/nv_ml_gaussian.h
@@ -63,9 +58,8 @@ find_package(OpenCV REQUIRED)
 include_directories("${OpenCV_INCLUDE_DIRS}")
 target_link_libraries(nvxs "${OpenCV_LIBS}")
 
-find_package(LAPACK REQUIRED)
-target_compile_options(nvxs PUBLIC "${LAPACK_LINKER_FLAGS}")
-target_link_libraries(nvxs "${LAPACK_LIBRARIES}")
+find_package(Eigen3 REQUIRED)
+include_directories("${EIGEN3_INCLUDE_DIR}")
 
 find_package(OpenMP)
 if(OPENMP_FOUND)
@@ -73,7 +67,9 @@ if(OPENMP_FOUND)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 endif()
 
-if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-    set(CMAKE_INSTALL_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/../install" CACHE PATH "Install path prefix, prepended onto install directories." FORCE)
-endif()
-install(TARGETS nvxs RUNTIME DESTINATION path LIBRARY DESTINATION lib PUBLIC_HEADER DESTINATION include)
+install(TARGETS nvxs
+    RUNTIME DESTINATION lib
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    PUBLIC_HEADER DESTINATION include
+)

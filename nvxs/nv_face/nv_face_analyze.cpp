@@ -121,7 +121,7 @@ static void nv_get_hair_color(nv_color_t *hair_color,
 
 	// ”§œ‹
 	for (m = 0; m < sample->m; ++m) {
-		NV_MAT_V(skin_likelihood, m, 0) = nv_gaussian_log_predict(0, skin_cov, sample, m);
+		NV_MAT_V(skin_likelihood, m, 0) = nv_gaussian_log_predict(skin_cov, sample, m);
 	}
 	k = nv_kmeans(likelihood_means, count, labels, skin_likelihood, likelihood_means->m, 0);
 	skin_label = nv_vector_maxsum_m(likelihood_means);
@@ -215,7 +215,7 @@ static void nv_get_eye_color(nv_color_t *eye_colors,
 
 	// ”§œ‹
 	for (m = 0; m < sample->m; ++m) {
-		NV_MAT_V(skin_likelihood, m, 0) = nv_gaussian_log_predict(0, skin_cov, sample, m);
+		NV_MAT_V(skin_likelihood, m, 0) = nv_gaussian_log_predict(skin_cov, sample, m);
 	}
 	k = nv_kmeans(likelihood_means, count, labels, skin_likelihood, likelihood_means->m, 0);
 	skin_label = nv_vector_maxsum_m(likelihood_means);
@@ -230,7 +230,7 @@ static void nv_get_eye_color(nv_color_t *eye_colors,
 
 	// ”¯œ‹
 	for (m = 0; m < sample->m; ++m) {
-		NV_MAT_V(hair_likelihood, m, 0) = nv_gaussian_log_predict(0, hair_cov, sample, m);
+		NV_MAT_V(hair_likelihood, m, 0) = nv_gaussian_log_predict(hair_cov, sample, m);
 	}
 	nv_matrix_m(hair_likelihood, sample->m);
 

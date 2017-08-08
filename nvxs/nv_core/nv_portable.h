@@ -9,8 +9,6 @@ extern "C" {
 
 //#define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
-//#include <crtdbg.h>
-#include <stdio.h>
 #include <string.h>
 #include <math.h>
 #include <float.h>

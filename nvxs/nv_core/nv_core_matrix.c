@@ -94,20 +94,7 @@ void nv_vector_copy(nv_matrix_t *dest, int dm, const nv_matrix_t *src, int sm)
 
 void nv_matrix_m(nv_matrix_t *mat, int m)
 {
-	if (mat->rows == 1) {
-		mat->cols = m;
-	} else {
-		int diff = mat->m - m;
-		if (diff % mat->cols) {
-			mat->rows -= (mat->m - m) / mat->cols; 
-		} else {
-			mat->rows -= (mat->m - m) / mat->cols;
-			if (diff > 0) {
-				--mat->rows;
-			} else {
-				++mat->rows;
-			}
-		}
-	}
+	assert(mat->rows == 1);
+	mat->cols = m;
 	mat->m = m;
 }
