@@ -34,17 +34,10 @@ nv_matrix_t *nv_matrix_alloc(int n, int m)
 	}
 	mem = ((char *)matrix) + sizeof(nv_matrix_t);
 	matrix->v = (float *)(((char *)mem) + 0x10 - ((size_t)mem & 0xf));
-
-	matrix->list = 1;
-
 	matrix->n = n;
 	matrix->m = m;
 	matrix->cols = m;
 	matrix->rows = 1;
-	matrix->step = step / sizeof(float);
-	matrix->alias = 0;
-	matrix->list_step = matrix->step * matrix->m;
-
 	return matrix;
 }
 
@@ -59,22 +52,18 @@ nv_matrix_t *nv_matrix3d_alloc(int n, int rows, int cols)
 
 void nv_matrix_zero(nv_matrix_t *mat)
 {
-	if (mat->list > 1) {
-		memset(mat->v, 0, mat->list_step * mat->list * sizeof(float));
-	} else {
-		memset(mat->v, 0, mat->m * mat->step * sizeof(float));
-	}
+	memset(mat->v, 0, mat->m * mat->n * sizeof(float));
 }
 
 void nv_vector_zero(nv_matrix_t *mat, int m)
 {
-	memset(&NV_MAT_V(mat, m, 0), 0, mat->step * sizeof(float));
+	memset(&NV_MAT_V(mat, m, 0), 0, mat->n * sizeof(float));
 }
 
 void nv_matrix_copy(nv_matrix_t *dest, int dm, const nv_matrix_t *src, int sm, int count_m)
 {
 	assert(dest->n == src->n);
-	memmove(&NV_MAT_V(dest, dm, 0), &NV_MAT_V(src, sm, 0), dest->step * count_m * sizeof(float));
+	memmove(&NV_MAT_V(dest, dm, 0), &NV_MAT_V(src, sm, 0), dest->n * count_m * sizeof(float));
 }
 
 void nv_matrix_free(nv_matrix_t **matrix)
@@ -89,7 +78,7 @@ void nv_vector_copy(nv_matrix_t *dest, int dm, const nv_matrix_t *src, int sm)
 {
 	assert(dest->n == src->n);
 
-	memmove(&NV_MAT_V(dest, dm, 0), &NV_MAT_V(src, sm, 0), dest->step * sizeof(float));
+	memmove(&NV_MAT_V(dest, dm, 0), &NV_MAT_V(src, sm, 0), dest->n * sizeof(float));
 }
 
 void nv_matrix_m(nv_matrix_t *mat, int m)
@@ -97,4 +86,23 @@ void nv_matrix_m(nv_matrix_t *mat, int m)
 	assert(mat->rows == 1);
 	mat->cols = m;
 	mat->m = m;
+}
+
+nv_matrix_t *nv_from_image(IplImage *img)
+{
+	nv_matrix_t *ret = (nv_matrix_t*)malloc(sizeof(nv_matrix_t));
+	ret->cols = img->width;
+	ret->rows = img->height;
+	ret->m = ret->cols * ret->rows;
+	ret->n = img->nChannels;
+	assert(img->depth == IPL_DEPTH_32F);
+	ret->v = (float*)img->imageData;
+	return ret;
+}
+
+IplImage *nv_to_image(nv_matrix_t *mtx)
+{
+	IplImage *ret = cvCreateImageHeader(cvSize(mtx->cols, mtx->rows), IPL_DEPTH_32F, mtx->n);
+	cvSetData(ret, mtx->v, mtx->cols * mtx->n * sizeof(float));
+	return ret;
 }

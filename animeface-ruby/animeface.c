@@ -5,6 +5,10 @@
 #include <nv_ml.h>
 #include <nv_face.h>
 
+#include <opencv/cv.h>
+#define HAVE_OPENCV_IMGCODECS
+#include <opencv/highgui.h>
+
 static VALUE cMagickPixel;
 static VALUE cMagick;
 
@@ -26,7 +30,6 @@ nv_conv_imager2nv(nv_matrix_t *bgr, nv_matrix_t *gray,
 	size_t range;
 	VALUE c;
 	ID rb_id_green, rb_id_blue, rb_id_red, rb_id_pixel_color;
-	
 	xsize = NUM2INT(rb_funcall(im, rb_intern("columns"), 0));
 	ysize = NUM2INT(rb_funcall(im, rb_intern("rows"), 0));
 	range = NUM2LONG(rb_const_get(cMagick, rb_intern("QuantumRange")));
@@ -68,7 +71,11 @@ nv_conv_imager2nv(nv_matrix_t *bgr, nv_matrix_t *gray,
 				NV_MAT3D_V(bgr, y, x, NV_CH_R) = r;
 			}
 		}
-		nv_gray(gray, bgr);
+		IplImage *cvBgr = nv_to_image(bgr);
+		IplImage *cvGray = nv_to_image(gray);
+		cvCvtColor(cvBgr, cvGray, CV_BGR2GRAY);
+		cvReleaseImageHeader(&cvBgr);
+		cvReleaseImageHeader(&cvGray);
 	} else {
 		// gray
 		float g;
@@ -115,8 +122,6 @@ VALUE detect(VALUE im,
 	
 	nv_matrix_t *bgr = nv_matrix3d_alloc(3, ysize, xsize);
 	nv_matrix_t *gray = nv_matrix3d_alloc(1, ysize, xsize);
-	nv_matrix_t *smooth = nv_matrix3d_alloc(1, ysize, xsize);
-	nv_matrix_t *edge = nv_matrix3d_alloc(1, ysize, xsize);
 	nv_matrix_t *gray_integral = nv_matrix3d_alloc(1, ysize + 1, xsize + 1);
 	nv_matrix_t *edge_integral = nv_matrix3d_alloc(1, ysize + 1, xsize + 1);
 
@@ -124,7 +129,6 @@ VALUE detect(VALUE im,
 	
 	nv_matrix_zero(bgr);
 	nv_matrix_zero(gray);
-	nv_matrix_zero(edge);
 	nv_matrix_zero(gray_integral);
 	nv_matrix_zero(edge_integral);
 	
@@ -134,9 +138,18 @@ VALUE detect(VALUE im,
 	
 	// convert format
 	nv_conv_imager2nv(bgr, gray, im);
+	IplImage *cvGray = nv_to_image(gray);
 	// edge
-	nv_gaussian5x5(smooth, 0, gray, 0);
-	nv_laplacian1(edge, smooth, 4.0f);
+	IplImage *cvEdge = cvCreateImage(cvSize(xsize, ysize), IPL_DEPTH_32F, 1);
+	cvSmooth(cvGray, cvEdge, CV_GAUSSIAN, 5, 5, 1, 0);
+	cvLaplace(cvEdge, cvEdge, 1);
+	for (int x =0; x<xsize; ++x)
+		for (int y =0; y<ysize; ++y)
+			if (CV_IMAGE_ELEM(cvEdge, float, y, x) < 0)
+				CV_IMAGE_ELEM(cvEdge, float, y, x) = 0;
+			else
+				CV_IMAGE_ELEM(cvEdge, float, y, x) *= 4;
+	nv_matrix_t *edge = nv_from_image(cvEdge);
 	// integral
 	nv_integral(gray_integral, gray, 0);
 	nv_integral(edge_integral, edge, 0);
@@ -253,10 +266,12 @@ VALUE detect(VALUE im,
 	}
 	nv_matrix_free(&bgr);
 	nv_matrix_free(&gray);
-	nv_matrix_free(&smooth);
 	nv_matrix_free(&edge);
 	nv_matrix_free(&gray_integral);
 	nv_matrix_free(&edge_integral);
+
+	cvReleaseImageHeader(&cvGray);
+	cvReleaseImage(&cvEdge);
 	
 	return results;
 }
@@ -306,5 +321,5 @@ void Init_AnimeFace()
   cMagickPixel = rb_const_get(cMagick, rb_intern("Pixel"));
   
   module = rb_define_module("AnimeFace");
-  rb_define_module_function(module, "detect", wrap_detect, -1);
+  rb_define_module_function(module, "detect", (VALUE(*)(ANYARGS))wrap_detect, -1);
 }

@@ -256,7 +256,7 @@ static void nv_get_eye_color(nv_color_t *eye_colors,
 		NV_MAT_V(sorted_means, m, 3) = NV_MAT_V(count, m, 0);
 	}
 	// ソート (label破壊)
-	qsort(sorted_means->v, k, sizeof(float) * sorted_means->step, nv_cmp_means);
+	qsort(sorted_means->v, k, sizeof(float) * sorted_means->n, nv_cmp_means);
 
 	// 色
 	c = 0;
@@ -340,7 +340,7 @@ nv_get_eye_colors(nv_color_t *eye_colors,
 		NV_MAT_V(sorted_means, m, 3) = NV_MAT_V(count, m, 0);
 	}
 	// カウントでソート, !labels破壊!
-	qsort(sorted_means->v, NV_EYE_COLOR_CLASS, sizeof(float) * sorted_means->step, nv_cmp_means);
+	qsort(sorted_means->v, NV_EYE_COLOR_CLASS, sizeof(float) * sorted_means->n, nv_cmp_means);
 
 	// 色
 	c = 0;

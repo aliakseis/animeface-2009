@@ -34,11 +34,6 @@ extern "C" {
 #define NV_ALIGNED(typed, variable, align_size) __declspec(align(align_size)) typed variable 
 #endif
 
-// snprintf
-#ifdef _MSC_VER
-#define snprintf _snprintf
-#endif
-
 // roundf
 #define NV_ROUND_INT(x) ((int)(0.5f + x))
 

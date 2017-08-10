@@ -15,11 +15,7 @@ add_library(nvxs SHARED
     nv_num/nv_vector.c
     nv_num/nv_distance.c
     nv_ip/nv_euclidean_color.c
-    nv_ip/nv_gaussian5x5.cpp
-    nv_ip/nv_gray.c
-    nv_ip/nv_gray_cpu.c
     nv_ip/nv_integral.c
-    nv_ip/nv_laplacian.cpp
 )
 
 set(NVXS_PUBLIC_HEADER
@@ -36,10 +32,7 @@ set(NVXS_PUBLIC_HEADER
     nv_core/nv_portable.h
     nv_ip/nv_ip.h
     nv_ip/nv_ip_euclidean_color.h
-    nv_ip/nv_ip_gaussian.h
-    nv_ip/nv_ip_gray.h
     nv_ip/nv_ip_integral.h
-    nv_ip/nv_ip_laplacian.h
     nv_num/nv_num.h
     nv_num/nv_num_cov.h
     nv_num/nv_num_distance.h

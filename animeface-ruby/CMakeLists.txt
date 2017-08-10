@@ -8,6 +8,10 @@ find_package(Ruby REQUIRED)
 include_directories("${RUBY_INCLUDE_DIRS}")
 target_link_libraries(AnimeFace "${RUBY_LIBRARY}")
 
+find_package(OpenCV REQUIRED)
+include_directories("${OpenCV_INCLUDE_DIRS}")
+target_link_libraries(AnimeFace "${OpenCV_LIBS}")
+
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../install/include")
 get_filename_component(NVXS_LIB_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../install/lib" ABSOLUTE)
 target_link_libraries(AnimeFace "${NVXS_LIB_PATH}/libnvxs.so")
