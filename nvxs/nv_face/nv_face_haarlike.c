@@ -90,9 +90,6 @@ void nv_face_haarlike(nv_face_haarlike_normalize_e normalize_type,
 	nv_vector_zero(feature, feature_m);
 
 	// level1
-#ifdef _OPENMP
-//#pragma omp parallel for private(ix)
-#endif
 	for (iy = 0, hy = 0; iy < 32-8; iy += 2, ++hy) {
 		int py = y + NV_ROUND_INT(ystep * iy);
 		int ey = py + NV_ROUND_INT(8.0f * ystep);

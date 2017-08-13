@@ -30,7 +30,7 @@ nv_face_detect(nv_face_position_t *face_pos,
 			   )
 {
 	nv_candidate candidates[NV_FACE_DETECT_MAX_CANDIDATES] = {}; // max
-	int i, j;
+	const float stride = step / 32.f;
 	float scale = min_window_size / 32.0f;
 	int ncandidate = 0;
 	int nface;
@@ -41,18 +41,18 @@ nv_face_detect(nv_face_position_t *face_pos,
 #endif
 	nv_matrix_t **haar = (nv_matrix_t **)malloc(sizeof(nv_matrix_t *) * threads);
 
-	for (i = 0; i < threads; ++i) {
+	for (int i = 0; i < threads; ++i) {
 		haar[i] = nv_matrix_alloc(NV_FACE_HAARLIKE_DIM, 1);
 	}
 	while (std::min(image_size->width, image_size->height) / scale > min_window_size) {
-		int window = (int)(32.0f * scale);
-		int ye = (int)((image_size->height - 32.0f * scale) / (step * scale));
-		int xe = (int)((image_size->width - 32.0f * scale) / (step * scale));
+		float window = (32.0f * scale);
+		int ye = cvRound((image_size->height - window) / (stride * window));
+		int xe = cvRound((image_size->width - window) / (stride * window));
 
 #ifdef _OPENMP
 #pragma omp parallel for num_threads(threads) schedule(dynamic, 1)
 #endif
-		for (i = 0; i < ye * xe; ++i) {
+		for (int i = 0; i < ye * xe; ++i) {
 #ifdef _OPENMP
 			int thread_idx = omp_get_thread_num();
 #else
@@ -60,22 +60,14 @@ nv_face_detect(nv_face_position_t *face_pos,
 #endif
 			int yi = i / xe;
 			int xi = i % xe;
-			int y = (int)(yi * step * scale);
-			int x = (int)(xi * step * scale);
-			double z1, z;
-			int label;
-			int ex = NV_ROUND_INT(x + (scale * 32.0f));
-			int ey = NV_ROUND_INT(y + (scale * 32.0f));
-			float area;
+			float y = yi * (image_size->height - window) / ye;
+			float x = xi * (image_size->width - window) / xe;
+			cv::Rect roi(cvRound(x), cvRound(y), cvRound(x + window) - cvRound(x), cvRound(y + window) - cvRound(y));
 
-			if (ex >= image_size->width || ey >= image_size->height) {
-				continue;
-			}
 			// エッジで枝刈り
-			area = NV_MAT3D_V(edge_integral, ey, ex, 0)
-				- NV_MAT3D_V(edge_integral, ey, x, 0)
-				- (NV_MAT3D_V(edge_integral, y, ex, 0) - NV_MAT3D_V(edge_integral, y, x, 0));
-			if (!nv_is_face_edge(window, scale, area)) {
+			float area = NV_MAT3D_V(edge_integral, roi.y + roi.height, roi.x + roi.width, 0) + NV_MAT3D_V(edge_integral, roi.y, roi.x, 0)
+				- NV_MAT3D_V(edge_integral, roi.y + roi.height, roi.x, 0) - NV_MAT3D_V(edge_integral, roi.y, roi.x + roi.width, 0);
+			if (area > window*6266.88f - 104448.f || area <= 52224.f || area <= (window - 64)*2611.2f) {
 				continue;
 			}
 
@@ -84,22 +76,22 @@ nv_face_detect(nv_face_position_t *face_pos,
 				NV_NORMALIZE_MAX,
 				haar[thread_idx], 0, 
 				gray_integral,
-				x, y, window, window);
+				roi.x, roi.y, roi.width, roi.height);
 
 			// 顔方向判定
-			label = nv_mlp_predict_label(dir_mlp, haar[thread_idx], 0);
+			int label = nv_mlp_predict_label(dir_mlp, haar[thread_idx]);
 			if (!(label == 0 )) {
 				continue; // 0 = -30°〜30° 以外だったらはじく
 			}
 
 			// 顔判別1
-			z1 = nv_mlp_predict_d(detector_mlp, haar[thread_idx], 0, 0);//
+			double z, z1 = nv_mlp_predict_d(detector_mlp, haar[thread_idx]);//
 			if (z1 > 0.1) {
 				if (bagging_mlps == 0) {
 					z = z1;
 				} else {
 					// 顔判別2
-					z = nv_mlp_bagging_predict_d(bagging_mlp, bagging_mlps, haar[thread_idx], 0, 0);
+					z = nv_mlp_bagging_predict_d(bagging_mlp, bagging_mlps, haar[thread_idx]);
 				}
 				if (z > threshold) {
 					// 顔
@@ -107,10 +99,7 @@ nv_face_detect(nv_face_position_t *face_pos,
 #pragma omp critical
 #endif
 					if (NV_FACE_DETECT_MAX_CANDIDATES > ncandidate) {
-						candidates[ncandidate].rect.x = x;
-						candidates[ncandidate].rect.y = y;
-						candidates[ncandidate].rect.width = ex - x;
-						candidates[ncandidate].rect.height = ey - y;
+						candidates[ncandidate].rect = roi;
 						candidates[ncandidate].z = z;
 						candidates[ncandidate].flag = 1;
 						candidates[ncandidate].parts = NULL;
@@ -125,11 +114,11 @@ nv_face_detect(nv_face_position_t *face_pos,
 
 	// 重複領域の除去
 	qsort(candidates, ncandidate, sizeof(nv_candidate), nv_candidate_cmp);
-	for (i = ncandidate-1; i >= 0; --i) {
+	for (int i = ncandidate-1; i >= 0; --i) {
 		if (!candidates[i].flag) {
 			continue;
 		}
-		for (j = i - 1; j >= 0; --j) {
+		for (int j = i - 1; j >= 0; --j) {
 			if (!candidates[j].flag) {
 				continue;
 			}
@@ -159,7 +148,7 @@ nv_face_detect(nv_face_position_t *face_pos,
 #ifdef _OPENMP
 #pragma omp parallel for num_threads(threads) schedule(dynamic, 1)
 #endif
-	for (i = 0; i < std::min(ncandidate, maxface); ++i) {
+	for (int i = 0; i < std::min(ncandidate, maxface); ++i) {
 		if (candidates[i].flag) {
 #ifdef _OPENMP
 			int thread_idx = omp_get_thread_num();
@@ -172,38 +161,38 @@ nv_face_detect(nv_face_position_t *face_pos,
 				gray_integral,
 				candidates[i].rect.x, candidates[i].rect.y, candidates[i].rect.width, candidates[i].rect.height);
 			candidates[i].parts = nv_matrix_alloc(parts_mlp->output, 1);
-			nv_mlp_regression(parts_mlp, haar[thread_idx], 0, candidates[i].parts, 0);
+			nv_mlp_regression(parts_mlp, haar[thread_idx], candidates[i].parts);
 		}
 	}
 
 	// 結果作成
 	nface = 0;
-	for (i = 0; i < ncandidate && i < maxface; ++i) {
+	for (int i = 0; i < ncandidate && i < maxface; ++i) {
 		if (candidates[i].flag) {
 			float d = candidates[i].rect.width;
 
 			face_pos[nface].likelihood = (float)candidates[i].z;
 			face_pos[nface].face = candidates[i].rect;
-			face_pos[nface].right_eye.x = NV_ROUND_INT(candidates[i].rect.x + d * (NV_MAT_V(candidates[i].parts, 0, 0) - (NV_MAT_V(candidates[i].parts, 0, 2))));
-			face_pos[nface].right_eye.y = NV_ROUND_INT(candidates[i].rect.y + d * (NV_MAT_V(candidates[i].parts, 0, 1) - (NV_MAT_V(candidates[i].parts, 0, 3))));
-			face_pos[nface].right_eye.width = NV_ROUND_INT(d * NV_MAT_V(candidates[i].parts, 0, 2) * 2.0f);
-			face_pos[nface].right_eye.height = NV_ROUND_INT(d * NV_MAT_V(candidates[i].parts, 0, 3) * 2.0f);
-			face_pos[nface].left_eye.x = NV_ROUND_INT(candidates[i].rect.x + d * (NV_MAT_V(candidates[i].parts, 0, 4) - (NV_MAT_V(candidates[i].parts, 0, 6))));
-			face_pos[nface].left_eye.y = NV_ROUND_INT(candidates[i].rect.y + d * (NV_MAT_V(candidates[i].parts, 0, 5) - (NV_MAT_V(candidates[i].parts, 0, 7))));
-			face_pos[nface].left_eye.width = NV_ROUND_INT(d * NV_MAT_V(candidates[i].parts, 0, 6) * 2.0f);
-			face_pos[nface].left_eye.height = NV_ROUND_INT(d * NV_MAT_V(candidates[i].parts, 0, 7) * 2.0f);
-			face_pos[nface].nose.x = NV_ROUND_INT(candidates[i].rect.x + d * (NV_MAT_V(candidates[i].parts, 0, 8) - 1.0f * (1.0f / 32.0f)));
-			face_pos[nface].nose.y = NV_ROUND_INT(candidates[i].rect.y + d * (NV_MAT_V(candidates[i].parts, 0, 9) - 1.0f * (1.0f / 32.0f)));
-			face_pos[nface].nose.width = NV_ROUND_INT(d / 16.f);
-			face_pos[nface].nose.height = NV_ROUND_INT(d / 16.f);
-			face_pos[nface].mouth.x = NV_ROUND_INT(candidates[i].rect.x + d * (NV_MAT_V(candidates[i].parts, 0, 10) - (NV_MAT_V(candidates[i].parts, 0, 12))));
-			face_pos[nface].mouth.y = NV_ROUND_INT(candidates[i].rect.y + d * (NV_MAT_V(candidates[i].parts, 0, 11) - (NV_MAT_V(candidates[i].parts, 0, 13))));
-			face_pos[nface].mouth.width = NV_ROUND_INT(d * NV_MAT_V(candidates[i].parts, 0, 12) * 2.0f);
-			face_pos[nface].mouth.height = NV_ROUND_INT(d * NV_MAT_V(candidates[i].parts, 0, 13) * 2.0f);
-			face_pos[nface].chin.x = NV_ROUND_INT(candidates[i].rect.x + d * (NV_MAT_V(candidates[i].parts, 0, 14) - 1.0f * (1.0f / 32.0f)));
-			face_pos[nface].chin.y = NV_ROUND_INT(candidates[i].rect.y + d * (NV_MAT_V(candidates[i].parts, 0, 15) - 1.0f * (1.0f / 32.0f)));
-			face_pos[nface].chin.width = NV_ROUND_INT(d / 16.f);
-			face_pos[nface].chin.height = NV_ROUND_INT(d / 16.f);
+			face_pos[nface].right_eye.x = cvRound(candidates[i].rect.x + d * (NV_MAT_V(candidates[i].parts, 0, 0) - (NV_MAT_V(candidates[i].parts, 0, 2))));
+			face_pos[nface].right_eye.y = cvRound(candidates[i].rect.y + d * (NV_MAT_V(candidates[i].parts, 0, 1) - (NV_MAT_V(candidates[i].parts, 0, 3))));
+			face_pos[nface].right_eye.width = cvRound(d * NV_MAT_V(candidates[i].parts, 0, 2) * 2.0f);
+			face_pos[nface].right_eye.height = cvRound(d * NV_MAT_V(candidates[i].parts, 0, 3) * 2.0f);
+			face_pos[nface].left_eye.x = cvRound(candidates[i].rect.x + d * (NV_MAT_V(candidates[i].parts, 0, 4) - (NV_MAT_V(candidates[i].parts, 0, 6))));
+			face_pos[nface].left_eye.y = cvRound(candidates[i].rect.y + d * (NV_MAT_V(candidates[i].parts, 0, 5) - (NV_MAT_V(candidates[i].parts, 0, 7))));
+			face_pos[nface].left_eye.width = cvRound(d * NV_MAT_V(candidates[i].parts, 0, 6) * 2.0f);
+			face_pos[nface].left_eye.height = cvRound(d * NV_MAT_V(candidates[i].parts, 0, 7) * 2.0f);
+			face_pos[nface].nose.x = cvRound(candidates[i].rect.x + d * (NV_MAT_V(candidates[i].parts, 0, 8) - 1.0f * (1.0f / 32.0f)));
+			face_pos[nface].nose.y = cvRound(candidates[i].rect.y + d * (NV_MAT_V(candidates[i].parts, 0, 9) - 1.0f * (1.0f / 32.0f)));
+			face_pos[nface].nose.width = cvRound(d / 16.f);
+			face_pos[nface].nose.height = cvRound(d / 16.f);
+			face_pos[nface].mouth.x = cvRound(candidates[i].rect.x + d * (NV_MAT_V(candidates[i].parts, 0, 10) - (NV_MAT_V(candidates[i].parts, 0, 12))));
+			face_pos[nface].mouth.y = cvRound(candidates[i].rect.y + d * (NV_MAT_V(candidates[i].parts, 0, 11) - (NV_MAT_V(candidates[i].parts, 0, 13))));
+			face_pos[nface].mouth.width = cvRound(d * NV_MAT_V(candidates[i].parts, 0, 12) * 2.0f);
+			face_pos[nface].mouth.height = cvRound(d * NV_MAT_V(candidates[i].parts, 0, 13) * 2.0f);
+			face_pos[nface].chin.x = cvRound(candidates[i].rect.x + d * (NV_MAT_V(candidates[i].parts, 0, 14) - 1.0f * (1.0f / 32.0f)));
+			face_pos[nface].chin.y = cvRound(candidates[i].rect.y + d * (NV_MAT_V(candidates[i].parts, 0, 15) - 1.0f * (1.0f / 32.0f)));
+			face_pos[nface].chin.width = cvRound(d / 16.f);
+			face_pos[nface].chin.height = cvRound(d / 16.f);
 			++nface;
 		}
 		if (candidates[i].parts != NULL) {
@@ -211,7 +200,7 @@ nv_face_detect(nv_face_position_t *face_pos,
 		}
 	}
 
-	for (i = 0; i < threads; ++i) {
+	for (int i = 0; i < threads; ++i) {
 		nv_matrix_free(&haar[i]);
 	}
 	free(haar);

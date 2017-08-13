@@ -1,5 +1,3 @@
-#if !NV_XS
-
 #include <Eigen/Dense>
 #include <math.h>
 #include "nv_core.h"
@@ -15,4 +13,3 @@ float nv_gaussian_log_predict(const nv_cov_t *cov, const nv_matrix_t *x, int xm)
 	Eigen::Map<Eigen::MatrixXf> Sigma(cov->cov->v, x->n, x->n);
 	return log(1 / sqrt(pow(2 * acos(-1), x->n) * Sigma.determinant())) - X.dot(Sigma.llt().solve(X)) / 2;
 }
-#endif

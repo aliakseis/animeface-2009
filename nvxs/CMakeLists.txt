@@ -10,7 +10,7 @@ add_library(nvxs SHARED
     nv_core/nv_core_util.c
     nv_ml/nv_gaussian.cpp
     nv_ml/nv_kmeans.cpp
-    nv_ml/nv_mlp.c
+    nv_ml/nv_mlp.cpp
     nv_num/nv_cov.c
     nv_num/nv_vector.cpp
     nv_num/nv_distance.c
@@ -25,7 +25,6 @@ set(NVXS_PUBLIC_HEADER
     nv_face/nv_face_analyze.h
     nv_face/nv_face_detect_internal.h
     nv_face/nv_face_detect.h
-    nv_core/nv_config.h
     nv_core/nv_core.h
     nv_core/nv_core_matrix.h
     nv_core/nv_core_util.h

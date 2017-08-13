@@ -1,33 +1,13 @@
 #include "nv_core.h"
 #include "nv_core_matrix.h"
 
-#if (NV_ENABLE_CUDA && NV_GPU_PIN_MALLOC)
-#include <cuda_runtime.h>
-#endif
-
-
-static void *nv_malloc(unsigned long n)
-{
-	void *mem;
-#if (NV_ENABLE_CUDA && NV_GPU_PIN_MALLOC)
-	if (nv_gpu_available()) {
-		cudaMallocHost(&mem, n);
-	} else {
-		mem = malloc(n);
-	}
-#else
-	mem = malloc(n);
-#endif
-	return mem;
-}
-
 nv_matrix_t *nv_matrix_alloc(int n, int m)
 {
 	void *mem;
 	
 	int step = n * sizeof(float);//(n + 4 - (n & 3)) * sizeof(float); // SSE2
 	int mem_size = step * m + sizeof(nv_matrix_t) + 0x10;
-	nv_matrix_t *matrix = (nv_matrix_t *)nv_malloc(mem_size);
+	nv_matrix_t *matrix = (nv_matrix_t *)malloc(mem_size);
 
 	if (matrix == NULL) {
 		return NULL;
