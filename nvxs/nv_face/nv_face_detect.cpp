@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <opencv2/opencv.hpp>
+#include <Eigen/Dense>
 #include "nv_core.h"
 #include "nv_ml.h"
 #include "nv_ip.h"
@@ -39,11 +40,6 @@ nv_face_detect(nv_face_position_t *face_pos,
 #else
 	int threads = 1;
 #endif
-	nv_matrix_t **haar = (nv_matrix_t **)malloc(sizeof(nv_matrix_t *) * threads);
-
-	for (int i = 0; i < threads; ++i) {
-		haar[i] = nv_matrix_alloc(NV_FACE_HAARLIKE_DIM, 1);
-	}
 	while (std::min(image_size->width, image_size->height) / scale > min_window_size) {
 		float window = (32.0f * scale);
 		int ye = cvRound((image_size->height - window) / (stride * window));
@@ -63,6 +59,7 @@ nv_face_detect(nv_face_position_t *face_pos,
 			float y = yi * (image_size->height - window) / ye;
 			float x = xi * (image_size->width - window) / xe;
 			cv::Rect roi(cvRound(x), cvRound(y), cvRound(x + window) - cvRound(x), cvRound(y + window) - cvRound(y));
+			Eigen::Matrix<float, NV_FACE_HAARLIKE_DIM, 1> haar;
 
 			// エッジで枝刈り
 			float area = NV_MAT3D_V(edge_integral, roi.y + roi.height, roi.x + roi.width, 0) + NV_MAT3D_V(edge_integral, roi.y, roi.x, 0)
@@ -72,26 +69,22 @@ nv_face_detect(nv_face_position_t *face_pos,
 			}
 
 			// 特徴量抽出
-			nv_face_haarlike(
-				NV_NORMALIZE_MAX,
-				haar[thread_idx], 0, 
-				gray_integral,
-				roi.x, roi.y, roi.width, roi.height);
+			nv_face_haarlike(NV_NORMALIZE_MAX, haar, gray_integral, roi);
 
 			// 顔方向判定
-			int label = nv_mlp_predict_label(dir_mlp, haar[thread_idx]);
+			int label = nv_mlp_predict_label(dir_mlp, haar);
 			if (!(label == 0 )) {
 				continue; // 0 = -30°〜30° 以外だったらはじく
 			}
 
 			// 顔判別1
-			double z, z1 = nv_mlp_predict_d(detector_mlp, haar[thread_idx]);//
+			double z, z1 = nv_mlp_predict_d(detector_mlp, haar);
 			if (z1 > 0.1) {
 				if (bagging_mlps == 0) {
 					z = z1;
 				} else {
 					// 顔判別2
-					z = nv_mlp_bagging_predict_d(bagging_mlp, bagging_mlps, haar[thread_idx]);
+					z = nv_mlp_bagging_predict_d(bagging_mlp, bagging_mlps, haar);
 				}
 				if (z > threshold) {
 					// 顔
@@ -155,13 +148,10 @@ nv_face_detect(nv_face_position_t *face_pos,
 #else
 			int thread_idx = 0;
 #endif
-			nv_face_haarlike(
-				NV_NORMALIZE_NORM,
-				haar[thread_idx], 0,
-				gray_integral,
-				candidates[i].rect.x, candidates[i].rect.y, candidates[i].rect.width, candidates[i].rect.height);
+			Eigen::Matrix<float, NV_FACE_HAARLIKE_DIM, 1> haar;
+			nv_face_haarlike(NV_NORMALIZE_NORM, haar, gray_integral, candidates[i].rect);
 			candidates[i].parts = nv_matrix_alloc(parts_mlp->output, 1);
-			nv_mlp_regression(parts_mlp, haar[thread_idx], candidates[i].parts);
+			nv_mlp_regression(parts_mlp, haar, candidates[i].parts);
 		}
 	}
 
@@ -199,12 +189,6 @@ nv_face_detect(nv_face_position_t *face_pos,
 			nv_matrix_free(&candidates[i].parts);
 		}
 	}
-
-	for (int i = 0; i < threads; ++i) {
-		nv_matrix_free(&haar[i]);
-	}
-	free(haar);
-	haar = NULL;
 
 	return nface;
 }

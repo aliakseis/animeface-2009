@@ -40,12 +40,6 @@ void nv_vector_zero(nv_matrix_t *mat, int m)
 	memset(&NV_MAT_V(mat, m, 0), 0, mat->n * sizeof(float));
 }
 
-void nv_matrix_copy(nv_matrix_t *dest, int dm, const nv_matrix_t *src, int sm, int count_m)
-{
-	assert(dest->n == src->n);
-	memmove(&NV_MAT_V(dest, dm, 0), &NV_MAT_V(src, sm, 0), dest->n * count_m * sizeof(float));
-}
-
 void nv_matrix_free(nv_matrix_t **matrix)
 {
 	if (*matrix != NULL) {

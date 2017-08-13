@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <Eigen/Dense>
 #include "nv_core.h"
 #include "nv_num.h"
 #include "nv_ip.h"
@@ -59,7 +60,7 @@ nv_get_skin_color(nv_color_t *skin_color,
 	k = nv_kmeans(means, count, labels, sample, NV_SKIN_COLOR_CLASS, 0);
 
 	// 肌選択
-	max_label = nv_vector_maxsum_m(count);
+	Eigen::Map<Eigen::VectorXf>(count->v, count->m).maxCoeff(&max_label);
 	skin_color->v[0] = NV_MAT_V(means, max_label, 0);
 	skin_color->v[1] = NV_MAT_V(means, max_label, 1);
 	skin_color->v[2] = NV_MAT_V(means, max_label, 2);
@@ -124,7 +125,7 @@ static void nv_get_hair_color(nv_color_t *hair_color,
 		NV_MAT_V(skin_likelihood, m, 0) = nv_gaussian_log_predict(skin_cov, sample, m);
 	}
 	k = nv_kmeans(likelihood_means, count, labels, skin_likelihood, likelihood_means->m, 0);
-	skin_label = nv_vector_maxsum_m(likelihood_means);
+	Eigen::Map<Eigen::VectorXf>(likelihood_means->v, likelihood_means->m).maxCoeff(&skin_label);
 	hair_m = 0;
 	for (m = 0; m < sample->m; ++m) {
 		if (NV_MAT_V(labels, m, 0) != (float)skin_label) {
@@ -138,7 +139,7 @@ static void nv_get_hair_color(nv_color_t *hair_color,
 	k = nv_kmeans(means, count, labels, sample, NV_HAIR_COLOR_CLASS, 0);
 	// 最大メンバクラス選択
 
-	max_label = nv_vector_maxsum_m(count);
+	Eigen::Map<Eigen::VectorXf>(count->v, count->m).maxCoeff(&max_label);
 	hair_color->v[0] = NV_MAT_V(means, max_label, 0);
 	hair_color->v[1] = NV_MAT_V(means, max_label, 1);
 	hair_color->v[2] = NV_MAT_V(means, max_label, 2);
@@ -218,7 +219,7 @@ static void nv_get_eye_color(nv_color_t *eye_colors,
 		NV_MAT_V(skin_likelihood, m, 0) = nv_gaussian_log_predict(skin_cov, sample, m);
 	}
 	k = nv_kmeans(likelihood_means, count, labels, skin_likelihood, likelihood_means->m, 0);
-	skin_label = nv_vector_maxsum_m(likelihood_means);
+	Eigen::Map<Eigen::VectorXf>(likelihood_means->v, likelihood_means->m).maxCoeff(&skin_label);
 	eye_m = 0;
 	for (m = 0; m < sample->m; ++m) {
 		if (NV_MAT_V(labels, m, 0) != (float)skin_label) {
@@ -235,7 +236,7 @@ static void nv_get_eye_color(nv_color_t *eye_colors,
 	nv_matrix_m(hair_likelihood, sample->m);
 
 	k = nv_kmeans(likelihood_means, count, labels, hair_likelihood, likelihood_means->m, 0);
-	hair_label = nv_vector_maxsum_m(likelihood_means);
+	Eigen::Map<Eigen::VectorXf>(likelihood_means->v, likelihood_means->m).maxCoeff(&skin_label);
 	eye_m = 0;
 	for (m = 0; m < sample->m; ++m) {
 		if (NV_MAT_V(labels, m, 0) != (float)hair_label) {

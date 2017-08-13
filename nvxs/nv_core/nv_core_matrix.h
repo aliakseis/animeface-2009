@@ -31,7 +31,6 @@ void nv_matrix_zero(nv_matrix_t *mat);
 void nv_vector_zero(nv_matrix_t *mat, int m);
 void nv_matrix_free(nv_matrix_t **matrix);
 void nv_vector_copy(nv_matrix_t *dest, int dm, const nv_matrix_t *src, int sm);
-void nv_matrix_copy(nv_matrix_t *dest, int dm, const nv_matrix_t *src, int sm, int count_m);
 void nv_matrix_m(nv_matrix_t *mat, int m);
 
 // OpenCV interoperate

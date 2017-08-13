@@ -3,7 +3,7 @@ project(nvxs)
 
 add_library(nvxs SHARED
     nv_face/nv_face_analyze.cpp
-    nv_face/nv_face_haarlike.c
+    nv_face/nv_face_haarlike.cpp
     nv_face/nv_face_detect.cpp
     nv_face/nv_face_mlp_static.c
     nv_core/nv_core_matrix.c
@@ -12,8 +12,6 @@ add_library(nvxs SHARED
     nv_ml/nv_kmeans.cpp
     nv_ml/nv_mlp.cpp
     nv_num/nv_cov.c
-    nv_num/nv_vector.cpp
-    nv_num/nv_distance.c
     nv_ip/nv_euclidean_color.c
     nv_ip/nv_integral.c
 )
@@ -34,8 +32,6 @@ set(NVXS_PUBLIC_HEADER
     nv_ip/nv_ip_integral.h
     nv_num/nv_num.h
     nv_num/nv_num_cov.h
-    nv_num/nv_num_distance.h
-    nv_num/nv_num_vector.h
     nv_ml/nv_ml.h
     nv_ml/nv_ml_gaussian.h
     nv_ml/nv_ml_kmeans.h

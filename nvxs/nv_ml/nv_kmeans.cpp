@@ -1,172 +1,31 @@
 #include <algorithm>
+#include <Eigen/Dense>
+#include <opencv2/opencv.hpp>
 #include "nv_core.h"
 #include "nv_ml.h"
 #include "nv_num.h"
 
 // k-means++
-
-// 最小距離クラス選択
-static int 
-nv_kmeans_bmc(const nv_matrix_t *mat, int mk,
-			  const nv_matrix_t *vec, int vm)
-{
-	int k;
-	int min_k = -1;
-	float min_dist = FLT_MAX;
-
-	for (k = 0; k < mk; ++k) {
-		float dist = nv_euclidean2(mat, k, vec, vm);
-		if (dist < min_dist) {
-			min_dist = dist;
-			min_k = k;
-		}
-	}
-
-	return min_k;
-}
-
-
-// K-Means++初期値選択
-static void 
-nv_kmeans_init(nv_matrix_t *means, int k,
-			   const nv_matrix_t *data)
-{
-	int m, c;
-	nv_matrix_t *min_dists = nv_matrix_alloc(1, data->m);
-	int rnd = (int)((data->m - 1) * nv_rand());
-	float potential = 0.0f;
-	int local_tries = 2 + (int)log(data->m);
-
-	// 1つ目
-	nv_vector_copy(means, 0, data, rnd);
-	for (m = 0; m < data->m; ++m) {
-		float dist = nv_euclidean2(means, 0, data, m);
-		NV_MAT_V(min_dists, m, 0) = dist;
-		potential += dist;
-	}
-	for (c = 1; c < k; ++c) {
-		float min_potential = FLT_MAX;
-		int best_index = -1;
-		int i;
-		for (i = 0; i < local_tries; ++i) {
-			float new_potential;
-			float rand_val = potential * nv_rand();
-
-			for (m = 0; m < data->m - 1; ++m) {
-				if (rand_val <= NV_MAT_V(min_dists, m, 0)) {
-					break;
-				} else {
-					rand_val -= NV_MAT_V(min_dists, m, 0);
-				}
-			}
-			new_potential = 0.0f;
-			for (i = 0; i < data->m; ++i) {
-				new_potential += std::min(
-					nv_euclidean2(data, m, data, i),
-					NV_MAT_V(min_dists, i, 0)
-				);
-			}
-			if (new_potential < min_potential) {
-				min_potential = new_potential;
-				best_index = m;
-			}
-		}
-		nv_vector_copy(means, c, data, best_index);
-		for (m = 0; m < data->m; ++m) {
-			NV_MAT_V(min_dists, m, 0) = std::min(
-				nv_euclidean2(data, m, data, best_index),
-				NV_MAT_V(min_dists, m, 0)
-			);
-		}
-		potential = min_potential;
-	}
-
-	nv_matrix_free(&min_dists);
-}
-
-int 
-nv_kmeans(nv_matrix_t *means,  // k
-		  nv_matrix_t *count,  // k
-		  nv_matrix_t *labels, // data->m
-		  const nv_matrix_t *data,
+int nv_kmeans(nv_matrix_t *means_mat,  // k
+		  nv_matrix_t *count_mat,  // k
+		  nv_matrix_t *labels_mat, // data->m
+		  const nv_matrix_t *data_mat,
 		  const int k,
 		  const int max_epoch)
 {
-	int m, n, c;
-	int processing = 1;
-	int converge, epoch;
+	cv::Mat means(means_mat->m, means_mat->n, CV_32F, means_mat->v);
+	cv::Mat data(data_mat->m, data_mat->n, CV_32F, data_mat->v);
+	cv::Mat labels(data_mat->m, 1, CV_32S);
 
-	nv_matrix_t *old_labels = nv_matrix_alloc(1, data->m);
-	nv_matrix_t *sum = nv_matrix_alloc(data->n, k);
+	Eigen::Map<Eigen::VectorXf> count(count_mat->v, count_mat->m);
+	count.setZero();
 
-	assert(means->n == data->n);
-	assert(means->m >= k);
-	assert(labels->m >= data->m);
+	cv::kmeans(data, k, labels, cv::TermCriteria(cv::TermCriteria::MAX_ITER, max_epoch, 0), 1, cv::KMEANS_PP_CENTERS, means);
 
-	// 初期値選択
-	nv_kmeans_init(means, k, data);
-
-	for (m = 0; m < old_labels->m; ++m) {
-		NV_MAT_V(old_labels, m, 0) = -1.0f;
+	for (int m = 0; m < data_mat->m; ++m) {
+		NV_MAT_V(labels_mat, m, 0) = labels.at<int>(m, 0);
+		++count(labels.at<int>(m, 0));
 	}
-
-	epoch = 0;
-	do {
-		nv_matrix_zero(count);
-		nv_matrix_zero(sum);
-		
-		for (m = 0; m < data->m; ++m) {
-			int label = nv_kmeans_bmc(means, k, data, m);
-			// ラベル決定
-			NV_MAT_V(labels, m, 0) = (float)label;
-			// カウント
-			NV_MAT_V(count, label, 0) += 1.0f;
-			// ベクトル合計
-			for (n = 0; n < means->n; ++n) {
-				NV_MAT_V(sum, label, n) += NV_MAT_V(data, m, n);
-			}
-		}
-		++epoch;
-
-		// 終了判定
-		converge = 1;
-		for (m = 0; m < data->m; ++m) {
-			if (NV_MAT_V(labels, m, 0) != NV_MAT_V(old_labels, m, 0)) {
-				converge = 0;
-				break;
-			}
-		}
-
-		if (converge) {
-			// 終了
-			processing = 0;
-		} else {
-			// ラベル更新
-			nv_matrix_copy(old_labels, 0, labels, 0, old_labels->m);
-
-			// 中央値計算
-			for (c = 0; c < k; ++c) {
-				if (NV_MAT_V(count, c, 0) != 0.0f) {
-					float factor = 1.0f / NV_MAT_V(count, c, 0);
-					for (n = 0; n < means->n; ++n) {
-						NV_MAT_V(means, c, n) = NV_MAT_V(sum, c, n) * factor;
-					}
-				}
-			}
-
-			// 最大試行回数判定
-			if (max_epoch != 0
-				&& epoch >= max_epoch)
-			{
-				// 終了
-				processing = 0;
-			}
-		}
-	} while (processing);
-
-	nv_matrix_free(&old_labels);
-	nv_matrix_free(&sum);
-
 	return k;
 }
 
