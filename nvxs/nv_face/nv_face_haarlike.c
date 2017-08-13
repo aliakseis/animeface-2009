@@ -1,8 +1,8 @@
 #include "nv_core.h"
 #include "nv_face_feature.h"
 
-// haar“I‚È‚à‚Ì
-// Œ»İ1ƒŒƒxƒ‹‚Ì‰ğ‘œ“x‚µ‚©g—p‚µ‚Ä‚È‚¢
+// haarçš„ãªã‚‚ã®
+// ç¾åœ¨1ãƒ¬ãƒ™ãƒ«ã®è§£åƒåº¦ã—ã‹ä½¿ç”¨ã—ã¦ãªã„
 
 static float nv_face_haarlike_diagonal_filter(int type,
 											  const nv_matrix_t *sum,
@@ -16,14 +16,14 @@ static float nv_face_haarlike_diagonal_filter(int type,
 	int xstep = NV_ROUND_INT(xscale);
 
 	if (type == 1) {
-		// |_|
+		// |ï¼¼|
 		for (i = 0; i < 7; ++i) {
 			int ppx = px + NV_ROUND_INT((1.0f + i) * xscale);
 			int ppy = py + NV_ROUND_INT(i * yscale);
 			int eex = px + NV_ROUND_INT(8.0f * xscale);
 			int eey = py + NV_ROUND_INT((i + 1) * yscale);
 
-			//printf("p1: %d, %d, %d, %d\n", 1+i,8,i,i+1);
+			//printf("p1: %d, %d, %d, %dÂ¥n", 1+i,8,i,i+1);
 
 			p1 += NV_INTEGRAL_V(sum, ppx, ppy, eex, eey);
 			area1 += (eex - ppx) * (eey - ppy);	
@@ -34,7 +34,7 @@ static float nv_face_haarlike_diagonal_filter(int type,
 			int eex = px + NV_ROUND_INT(i * xscale);
 			int eey = py + NV_ROUND_INT((i + 1) * yscale);
 
-			//printf("p2: %d, %d, %d, %d\n", 0,i,i,i+1);
+			//printf("p2: %d, %d, %d, %dÂ¥n", 0,i,i,i+1);
 			p2 += NV_INTEGRAL_V(sum, ppx, ppy, eex, eey);
 			area2 += (eex - ppx) * (eey - ppy);	
 		}
@@ -47,7 +47,7 @@ static float nv_face_haarlike_diagonal_filter(int type,
 			int eex = px + NV_ROUND_INT((7.0f - i) * xscale);
 			int eey = py + NV_ROUND_INT((i + 1) * yscale);
 
-			//printf("p1: %d, %d, %d, %d\n", 0, 7-i, i, i+1);
+			//printf("p1: %d, %d, %d, %dÂ¥n", 0, 7-i, i, i+1);
 			
 			p1 += NV_INTEGRAL_V(sum, ppx, ppy, eex, eey);
 			area1 += (eex - ppx) * (eey - ppy);	
@@ -58,7 +58,7 @@ static float nv_face_haarlike_diagonal_filter(int type,
 			int eex = px + NV_ROUND_INT(8.0f * xscale);
 			int eey = py + NV_ROUND_INT((i + 1) * yscale);
 
-			//printf("p2: %d, %d, %d, %d\n", 8-i, 8, i, i+1);
+			//printf("p2: %d, %d, %d, %dÂ¥n", 8-i, 8, i, i+1);
 
 			p2 += NV_INTEGRAL_V(sum, ppx, ppy, eex, eey);
 			area2 += (eex - ppx) * (eey - ppy);	
@@ -102,7 +102,7 @@ void nv_face_haarlike(nv_face_haarlike_normalize_e normalize_type,
 			int ex = px + NV_ROUND_INT(8.0f * xstep);
 			float p1, p2, area, ptx;
 
-			// ‘SƒGƒŠƒA
+			// å…¨ã‚¨ãƒªã‚¢
 			area = NV_MAT3D_V(sum, ey, ex, 0)
 				- NV_MAT3D_V(sum, ey, px, 0)
 				- (NV_MAT3D_V(sum, py, ex, 0) - NV_MAT3D_V(sum, py, px, 0));
@@ -155,10 +155,10 @@ void nv_face_haarlike(nv_face_haarlike_normalize_e normalize_type,
 		}
 	}
 
-	// ³‹K‰»
+	// æ­£è¦åŒ–
 	switch (normalize_type) {
 	case NV_NORMALIZE_MAX:
-		// Å‘å’l=1.0
+		// æœ€å¤§å€¤=1.0
 		vmax = 0.0f;
 		vmin = FLT_MAX;
 		for (n = 0; n < feature->n; ++n) {
@@ -181,7 +181,7 @@ void nv_face_haarlike(nv_face_haarlike_normalize_e normalize_type,
 		}
 		break;
 	case NV_NORMALIZE_NORM:
-		// ƒxƒNƒgƒ‹ NORM=1.0
+		// ãƒ™ã‚¯ãƒˆãƒ« NORM=1.0
 		v = 0.0f;
 		for (n = 0; n < feature->n; ++n) {
 			v += NV_MAT_V(feature, feature_m, n) * NV_MAT_V(feature, feature_m, n);

@@ -3,19 +3,19 @@
 
 #ifdef __GNUC__
 // gcc
-#define NV_ENABLE_CUDA   0  // CUDA‚ğg‚¤‚©
+#define NV_ENABLE_CUDA   0  // CUDAã‚’ä½¿ã†ã‹
 #ifdef __SSE2__
-#define NV_ENABLE_SSE2   1  // SSE2‚ğg‚¤‚©
+#define NV_ENABLE_SSE2   1  // SSE2ã‚’ä½¿ã†ã‹
 #else
 #define NV_ENABLE_SSE2   0
 #endif
-#define NV_XS            1  // Perl—p
+#define NV_XS            1  // Perlç”¨
 
 #else
 // VC++
-#define NV_ENABLE_CUDA   0  // CUDA‚ğg‚¤‚©
-#define NV_ENABLE_SSE2   1  // SSE2‚ğg‚¤‚©
-#define NV_XS            1  // Perl—p
+#define NV_ENABLE_CUDA   0  // CUDAã‚’ä½¿ã†ã‹
+#define NV_ENABLE_SSE2   1  // SSE2ã‚’ä½¿ã†ã‹
+#define NV_XS            1  // Perlç”¨
 
 #endif
 #endif

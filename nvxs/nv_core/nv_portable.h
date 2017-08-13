@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-// 標準Cヘッダー
+// 讓呎ｺ砲繝倥ャ繝繝ｼ
 
 //#define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>

@@ -1,7 +1,7 @@
 #include "nv_core.h"
 #include "nv_num_cov.h"
 
-// •ªŽU‹¤•ªŽU
+// åˆ†æ•£å…±åˆ†æ•£
 
 nv_cov_t *nv_cov_alloc(int n)
 {
@@ -43,7 +43,7 @@ void nv_cov(nv_matrix_t *cov,
 	assert(cov->n == data->n && cov->n == cov->m
 		&& u->n == cov->n);
 
-	// •½‹Ï
+	// å¹³å‡
 	nv_matrix_zero(u);
 	for (m = 0; m < data->m; ++m) {
 		for (n = 0; n < data->n; ++n) {
@@ -51,7 +51,7 @@ void nv_cov(nv_matrix_t *cov,
 		}
 	}
 
-	// ãŽOŠp •ªŽU‹¤•ªŽUs—ñ
+	// ä¸Šä¸‰è§’ åˆ†æ•£å…±åˆ†æ•£è¡Œåˆ—
 	nv_matrix_zero(cov);
 	for (n = 0; n < cov->n; ++n) {
 		for (m = n; m < cov->m; ++m) {

@@ -12,7 +12,7 @@ add_library(nvxs SHARED
     nv_ml/nv_kmeans.cpp
     nv_ml/nv_mlp.c
     nv_num/nv_cov.c
-    nv_num/nv_vector.c
+    nv_num/nv_vector.cpp
     nv_num/nv_distance.c
     nv_ip/nv_euclidean_color.c
     nv_ip/nv_integral.c

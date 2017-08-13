@@ -29,7 +29,7 @@ nv_get_skin_color(nv_color_t *skin_color,
 	int m, max_label, k, skin_m;
 	cv::Rect skin_rect;
 
-	// –Ú‚ÆŒû‚ÌŠÔ
+	// ç›®ã¨å£ã®é–“
 	skin_rect.x = face->right_eye.x;
 	skin_rect.y = std::max(
 		face->left_eye.y + face->left_eye.height,
@@ -43,7 +43,7 @@ nv_get_skin_color(nv_color_t *skin_color,
 
 		nv_color_bgr2euclidean_scalar(sample, m, img, NV_MAT_M(img, y, x));
 	}
-	// –Ú‚Æ–Ú‚ÌŠÔ
+	// ç›®ã¨ç›®ã®é–“
 	skin_rect.x = face->right_eye.x + face->right_eye.width;
 	skin_rect.y = std::min(face->left_eye.y, face->right_eye.y);
 	skin_rect.width = face->left_eye.x - skin_rect.x;
@@ -55,16 +55,16 @@ nv_get_skin_color(nv_color_t *skin_color,
 
 		nv_color_bgr2euclidean_scalar(sample, m, img, NV_MAT_M(img, y, x));
 	}
-	// ƒNƒ‰ƒXƒ^ƒŠƒ“ƒO
+	// ã‚¯ãƒ©ã‚¹ã‚¿ãƒªãƒ³ã‚°
 	k = nv_kmeans(means, count, labels, sample, NV_SKIN_COLOR_CLASS, 0);
 
-	// ”§‘I‘ğ
+	// è‚Œé¸æŠ
 	max_label = nv_vector_maxsum_m(count);
 	skin_color->v[0] = NV_MAT_V(means, max_label, 0);
 	skin_color->v[1] = NV_MAT_V(means, max_label, 1);
 	skin_color->v[2] = NV_MAT_V(means, max_label, 2);
 
-	// ”§‚Ì•ªU‹¤•ªUs—ñ,ŒÅ—L’l‚ğŒvZ
+	// è‚Œã®åˆ†æ•£å…±åˆ†æ•£è¡Œåˆ—,å›ºæœ‰å€¤ã‚’è¨ˆç®—
 	skin_m = 0;
 	for (m = 0; m < NV_SKIN_COLOR_SAMPLES; ++m) {
 		if (NV_MAT_V(labels, m, 0) == (float)max_label) {
@@ -102,7 +102,7 @@ static void nv_get_hair_color(nv_color_t *hair_color,
 	cv::Rect hair_rect;
 	int k;
 
-	// –Ú‚Ìã‚©‚çŠç‚Ì1/3
+	// ç›®ã®ä¸Šã‹ã‚‰é¡”ã®1/3
 	hair_rect.x = face->right_eye.x;
 	hair_rect.y = std::max(0, std::min(face->left_eye.y, face->right_eye.y) - face->face.height / 3);
 	hair_rect.width = face->left_eye.x + face->left_eye.width - hair_rect.x;
@@ -119,7 +119,7 @@ static void nv_get_hair_color(nv_color_t *hair_color,
 		nv_color_bgr2euclidean_scalar(sample, m, img, NV_MAT_M(img, y, x));
 	}
 
-	// ”§œ‹
+	// è‚Œé™¤å»
 	for (m = 0; m < sample->m; ++m) {
 		NV_MAT_V(skin_likelihood, m, 0) = nv_gaussian_log_predict(skin_cov, sample, m);
 	}
@@ -134,16 +134,16 @@ static void nv_get_hair_color(nv_color_t *hair_color,
 	}
 	nv_matrix_m(sample, hair_m);
 
-	// ƒNƒ‰ƒXƒ^ƒŠƒ“ƒO
+	// ã‚¯ãƒ©ã‚¹ã‚¿ãƒªãƒ³ã‚°
 	k = nv_kmeans(means, count, labels, sample, NV_HAIR_COLOR_CLASS, 0);
-	// Å‘åƒƒ“ƒoƒNƒ‰ƒX‘I‘ğ
+	// æœ€å¤§ãƒ¡ãƒ³ãƒã‚¯ãƒ©ã‚¹é¸æŠ
 
 	max_label = nv_vector_maxsum_m(count);
 	hair_color->v[0] = NV_MAT_V(means, max_label, 0);
 	hair_color->v[1] = NV_MAT_V(means, max_label, 1);
 	hair_color->v[2] = NV_MAT_V(means, max_label, 2);
 
-	// ”¯‚Ì•ªU‹¤•ªUs—ñ,ŒÅ—L’l‚ğŒvZ
+	// é«ªã®åˆ†æ•£å…±åˆ†æ•£è¡Œåˆ—,å›ºæœ‰å€¤ã‚’è¨ˆç®—
 	hair_m = 0;
 	for (m = 0; m < sample->m; ++m) {
 		if (NV_MAT_V(labels, m, 0) == (float)max_label) {
@@ -163,7 +163,7 @@ static void nv_get_hair_color(nv_color_t *hair_color,
 	nv_matrix_free(&likelihood_means);
 }
 
-// [3]count‚Å~‡ƒ\[ƒg—p
+// [3]countã§é™é †ã‚½ãƒ¼ãƒˆç”¨
 static int nv_cmp_means(const void *p1, const void *p2)
 {
 	float *lhs = (float *)p1;
@@ -202,7 +202,7 @@ static void nv_get_eye_color(nv_color_t *eye_colors,
 	int eye_m;
 	int x, y;
 
-	// –Ú‚ÌFƒTƒ“ƒvƒŠƒ“ƒO
+	// ç›®ã®è‰²ã‚µãƒ³ãƒ—ãƒªãƒ³ã‚°
 	m = 0;
 	for (y = eye_rect->y; y < eye_rect->y + eye_rect->height; ++y) {
 		for (x = eye_rect->x; x < eye_rect->x + eye_rect->width; ++x) {
@@ -211,9 +211,9 @@ static void nv_get_eye_color(nv_color_t *eye_colors,
 		}
 	}
 
-	// ”§‚Æ”¯‚ğœ‹
+	// è‚Œã¨é«ªã‚’é™¤å»
 
-	// ”§œ‹
+	// è‚Œé™¤å»
 	for (m = 0; m < sample->m; ++m) {
 		NV_MAT_V(skin_likelihood, m, 0) = nv_gaussian_log_predict(skin_cov, sample, m);
 	}
@@ -228,7 +228,7 @@ static void nv_get_eye_color(nv_color_t *eye_colors,
 	}
 	nv_matrix_m(sample, eye_m);
 
-	// ”¯œ‹
+	// é«ªé™¤å»
 	for (m = 0; m < sample->m; ++m) {
 		NV_MAT_V(hair_likelihood, m, 0) = nv_gaussian_log_predict(hair_cov, sample, m);
 	}
@@ -245,20 +245,20 @@ static void nv_get_eye_color(nv_color_t *eye_colors,
 	}
 	nv_matrix_m(sample, eye_m);
 
-	// –Ú‚ÌƒNƒ‰ƒXƒ^ƒŠƒ“ƒO
+	// ç›®ã®ã‚¯ãƒ©ã‚¹ã‚¿ãƒªãƒ³ã‚°
 	k = nv_kmeans(means, count, labels, sample, NV_EYE_COLOR_CLASS, 0);
 
-	// ƒJƒEƒ“ƒg‚Åƒ\[ƒg
+	// ã‚«ã‚¦ãƒ³ãƒˆã§ã‚½ãƒ¼ãƒˆ
 	for (m = 0; m < k; ++m) {
 		NV_MAT_V(sorted_means, m, 0) = NV_MAT_V(means, m, 0);
 		NV_MAT_V(sorted_means, m, 1) = NV_MAT_V(means, m, 1);
 		NV_MAT_V(sorted_means, m, 2) = NV_MAT_V(means, m, 2);
 		NV_MAT_V(sorted_means, m, 3) = NV_MAT_V(count, m, 0);
 	}
-	// ƒ\[ƒg (label”j‰ó)
+	// ã‚½ãƒ¼ãƒˆ (labelç ´å£Š)
 	qsort(sorted_means->v, k, sizeof(float) * sorted_means->n, nv_cmp_means);
 
-	// F
+	// è‰²
 	c = 0;
 	for (m = 0; m < k; ++m) {
 		eye_colors[c].v[0] = NV_MAT_V(sorted_means, m, 0);
@@ -301,25 +301,25 @@ nv_get_eye_colors(nv_color_t *eye_colors,
 	nv_matrix_t *sorted_means = nv_matrix_alloc(3 + 1, NV_EYE_COLOR_CLASS);
 	int m, c, epoch;
 
-	// ¶–Ú
+	// å·¦ç›®
 	nv_get_eye_color(
 		left_eye_colors, left_sample,
 		skin_color, skin_cov,
 		hair_color, hair_cov,
 		&face->left_eye, img);
-	// ‰E–Ú
+	// å³ç›®
 	nv_get_eye_color(
 		right_eye_colors, right_sample, 
 		skin_color, skin_cov,
 		hair_color, hair_cov,
 		&face->right_eye, img);
 
-	// ƒTƒ“ƒvƒ‹”XV
+	// ã‚µãƒ³ãƒ—ãƒ«æ•°æ›´æ–°
 	color_samples = right_sample->m + left_sample->m;
 	nv_matrix_m(sample, color_samples);
 
-	// —¼–Ú
-	// –Ú‚ÌFƒTƒ“ƒvƒŠƒ“ƒO
+	// ä¸¡ç›®
+	// ç›®ã®è‰²ã‚µãƒ³ãƒ—ãƒªãƒ³ã‚°
 	for (m = 0; m < left_sample->m; ++m) {
 		NV_MAT_V(sample, m, 0) = NV_MAT_V(left_sample, m, 0);
 		NV_MAT_V(sample, m, 1) = NV_MAT_V(left_sample, m, 1);
@@ -332,17 +332,17 @@ nv_get_eye_colors(nv_color_t *eye_colors,
 	}
 	epoch = nv_kmeans(means, count, labels, sample, NV_EYE_COLOR_CLASS, 0);
 
-	// ƒJƒEƒ“ƒg‚Åƒ\[ƒg
+	// ã‚«ã‚¦ãƒ³ãƒˆã§ã‚½ãƒ¼ãƒˆ
 	for (m = 0; m < NV_EYE_COLOR_CLASS; ++m) {
 		NV_MAT_V(sorted_means, m, 0) = NV_MAT_V(means, m, 0);
 		NV_MAT_V(sorted_means, m, 1) = NV_MAT_V(means, m, 1);
 		NV_MAT_V(sorted_means, m, 2) = NV_MAT_V(means, m, 2);
 		NV_MAT_V(sorted_means, m, 3) = NV_MAT_V(count, m, 0);
 	}
-	// ƒJƒEƒ“ƒg‚Åƒ\[ƒg, !labels”j‰ó!
+	// ã‚«ã‚¦ãƒ³ãƒˆã§ã‚½ãƒ¼ãƒˆ, !labelsç ´å£Š!
 	qsort(sorted_means->v, NV_EYE_COLOR_CLASS, sizeof(float) * sorted_means->n, nv_cmp_means);
 
-	// F
+	// è‰²
 	c = 0;
 	for (m = 0; m < NV_EYE_COLOR_CLASS; ++m) {
 		eye_colors[c].v[0] = NV_MAT_V(sorted_means, m, 0);
@@ -417,7 +417,7 @@ nv_face_analyze(nv_face_feature_t *feature,
 	feature->eye_ratio = nv_eye_ratio(face);
 	feature->face_ratio = nv_face_ratio(face);
 
-	// F‹óŠÔ•ÏŠ·
+	// è‰²ç©ºé–“å¤‰æ›
 	nv_ec2bgr(&feature->skin_ec, &feature->skin_bgr);
 	nv_ec2bgr(&feature->hair_ec, &feature->hair_bgr);
 	for (i = 0; i < 4; ++i) {

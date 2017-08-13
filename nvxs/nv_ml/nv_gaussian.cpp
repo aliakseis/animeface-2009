@@ -7,7 +7,7 @@
 #include "nv_ml_gaussian.h"
 
 
-// ƒKƒEƒX•ª•z
+// ã‚¬ã‚¦ã‚¹åˆ†å¸ƒ
 
 float nv_gaussian_log_predict(const nv_cov_t *cov, const nv_matrix_t *x, int xm)
 {

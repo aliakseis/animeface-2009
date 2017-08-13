@@ -5,7 +5,7 @@
 
 // k-means++
 
-// Å¬‹——£ƒNƒ‰ƒX‘I‘ğ
+// æœ€å°è·é›¢ã‚¯ãƒ©ã‚¹é¸æŠ
 static int 
 nv_kmeans_bmc(const nv_matrix_t *mat, int mk,
 			  const nv_matrix_t *vec, int vm)
@@ -26,7 +26,7 @@ nv_kmeans_bmc(const nv_matrix_t *mat, int mk,
 }
 
 
-// K-Means++‰Šú’l‘I‘ğ
+// K-Means++åˆæœŸå€¤é¸æŠ
 static void 
 nv_kmeans_init(nv_matrix_t *means, int k,
 			   const nv_matrix_t *data)
@@ -37,7 +37,7 @@ nv_kmeans_init(nv_matrix_t *means, int k,
 	float potential = 0.0f;
 	int local_tries = 2 + (int)log(data->m);
 
-	// 1‚Â–Ú
+	// 1ã¤ç›®
 	nv_vector_copy(means, 0, data, rnd);
 	for (m = 0; m < data->m; ++m) {
 		float dist = nv_euclidean2(means, 0, data, m);
@@ -103,7 +103,7 @@ nv_kmeans(nv_matrix_t *means,  // k
 	assert(means->m >= k);
 	assert(labels->m >= data->m);
 
-	// ‰Šú’l‘I‘ğ
+	// åˆæœŸå€¤é¸æŠ
 	nv_kmeans_init(means, k, data);
 
 	for (m = 0; m < old_labels->m; ++m) {
@@ -117,18 +117,18 @@ nv_kmeans(nv_matrix_t *means,  // k
 		
 		for (m = 0; m < data->m; ++m) {
 			int label = nv_kmeans_bmc(means, k, data, m);
-			// ƒ‰ƒxƒ‹Œˆ’è
+			// ãƒ©ãƒ™ãƒ«æ±ºå®š
 			NV_MAT_V(labels, m, 0) = (float)label;
-			// ƒJƒEƒ“ƒg
+			// ã‚«ã‚¦ãƒ³ãƒˆ
 			NV_MAT_V(count, label, 0) += 1.0f;
-			// ƒxƒNƒgƒ‹‡Œv
+			// ãƒ™ã‚¯ãƒˆãƒ«åˆè¨ˆ
 			for (n = 0; n < means->n; ++n) {
 				NV_MAT_V(sum, label, n) += NV_MAT_V(data, m, n);
 			}
 		}
 		++epoch;
 
-		// I—¹”»’è
+		// çµ‚äº†åˆ¤å®š
 		converge = 1;
 		for (m = 0; m < data->m; ++m) {
 			if (NV_MAT_V(labels, m, 0) != NV_MAT_V(old_labels, m, 0)) {
@@ -138,13 +138,13 @@ nv_kmeans(nv_matrix_t *means,  // k
 		}
 
 		if (converge) {
-			// I—¹
+			// çµ‚äº†
 			processing = 0;
 		} else {
-			// ƒ‰ƒxƒ‹XV
+			// ãƒ©ãƒ™ãƒ«æ›´æ–°
 			nv_matrix_copy(old_labels, 0, labels, 0, old_labels->m);
 
-			// ’†‰›’lŒvZ
+			// ä¸­å¤®å€¤è¨ˆç®—
 			for (c = 0; c < k; ++c) {
 				if (NV_MAT_V(count, c, 0) != 0.0f) {
 					float factor = 1.0f / NV_MAT_V(count, c, 0);
@@ -154,11 +154,11 @@ nv_kmeans(nv_matrix_t *means,  // k
 				}
 			}
 
-			// Å‘ås‰ñ””»’è
+			// æœ€å¤§è©¦è¡Œå›æ•°åˆ¤å®š
 			if (max_epoch != 0
 				&& epoch >= max_epoch)
 			{
-				// I—¹
+				// çµ‚äº†
 				processing = 0;
 			}
 		}

@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-// ユークリッド距離^2
+// 繝ｦ繝ｼ繧ｯ繝ｪ繝�繝芽ｷ晞屬^2
 float nv_euclidean2(const nv_matrix_t *vec1, int m1, const nv_matrix_t *vec2, int m2);
 
 #ifdef __cplusplus

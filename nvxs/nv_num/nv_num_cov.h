@@ -5,11 +5,11 @@
 extern "C" {
 #endif
 
-// •ªU‹¤•ªUs—ñ
+// åˆ†æ•£å…±åˆ†æ•£è¡Œåˆ—
 typedef struct {
 	int n;
-	nv_matrix_t *u;        // •½‹Ï
-	nv_matrix_t *cov;      // s•ªUs—ñ
+	nv_matrix_t *u;        // å¹³å‡
+	nv_matrix_t *cov;      // è¡Œåˆ†æ•£è¡Œåˆ—
 } nv_cov_t;
 
 nv_cov_t *nv_cov_alloc(int n);
