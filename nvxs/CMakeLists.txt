@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.0)
 project(nvxs)
 
 add_library(nvxs SHARED
@@ -43,11 +43,10 @@ set_target_properties(nvxs PROPERTIES PUBLIC_HEADER "${NVXS_PUBLIC_HEADER}")
 include_directories(nv_face nv_core nv_ip nv_num nv_ml)
 
 find_package(OpenCV REQUIRED)
-include_directories("${OpenCV_INCLUDE_DIRS}")
 target_link_libraries(nvxs "${OpenCV_LIBS}")
 
 find_package(Eigen3 REQUIRED)
-include_directories("${EIGEN3_INCLUDE_DIR}")
+target_link_libraries(nvxs Eigen3::Eigen)
 
 find_package(OpenMP)
 if(OPENMP_FOUND)
