@@ -1,6 +1,6 @@
 #ifndef __NV_MATRIX_H
 #define __NV_MATRIX_H
-#include <opencv/cv.h>
+#include <opencv2/core/types_c.h>
 
 #ifdef __cplusplus
 extern "C" {

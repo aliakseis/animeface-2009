@@ -5,15 +5,15 @@ add_library(nvxs SHARED
     nv_face/nv_face_analyze.cpp
     nv_face/nv_face_haarlike.cpp
     nv_face/nv_face_detect.cpp
-    nv_face/nv_face_mlp_static.c
-    nv_core/nv_core_matrix.c
-    nv_core/nv_core_util.c
+    nv_face/nv_face_mlp_static.cpp
+    nv_core/nv_core_matrix.cpp
+    nv_core/nv_core_util.cpp
     nv_ml/nv_gaussian.cpp
     nv_ml/nv_kmeans.cpp
     nv_ml/nv_mlp.cpp
-    nv_num/nv_cov.c
-    nv_ip/nv_euclidean_color.c
-    nv_ip/nv_integral.c
+    nv_num/nv_cov.cpp
+    nv_ip/nv_euclidean_color.cpp
+    nv_ip/nv_integral.cpp
 )
 
 set(NVXS_PUBLIC_HEADER
@@ -53,6 +53,10 @@ if(OPENMP_FOUND)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 endif()
+
+add_executable ( animeface animeface/animeface.cpp )
+target_link_libraries ( animeface nvxs )
+
 
 install(TARGETS nvxs
     RUNTIME DESTINATION lib

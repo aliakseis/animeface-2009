@@ -162,7 +162,7 @@ nv_face_detect(nv_face_position_t *face_pos,
 			float d = candidates[i].rect.width;
 
 			face_pos[nface].likelihood = (float)candidates[i].z;
-			face_pos[nface].face = candidates[i].rect;
+			face_pos[nface].face = cvRect(candidates[i].rect);
 			face_pos[nface].right_eye.x = cvRound(candidates[i].rect.x + d * (NV_MAT_V(candidates[i].parts, 0, 0) - (NV_MAT_V(candidates[i].parts, 0, 2))));
 			face_pos[nface].right_eye.y = cvRound(candidates[i].rect.y + d * (NV_MAT_V(candidates[i].parts, 0, 1) - (NV_MAT_V(candidates[i].parts, 0, 3))));
 			face_pos[nface].right_eye.width = cvRound(d * NV_MAT_V(candidates[i].parts, 0, 2) * 2.0f);

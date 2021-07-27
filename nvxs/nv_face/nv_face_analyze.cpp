@@ -236,7 +236,7 @@ static void nv_get_eye_color(nv_color_t *eye_colors,
 	nv_matrix_m(hair_likelihood, sample->m);
 
 	k = nv_kmeans(likelihood_means, count, labels, hair_likelihood, likelihood_means->m, 0);
-	Eigen::Map<Eigen::VectorXf>(likelihood_means->v, likelihood_means->m).maxCoeff(&skin_label);
+	Eigen::Map<Eigen::VectorXf>(likelihood_means->v, likelihood_means->m).maxCoeff(&hair_label);
 	eye_m = 0;
 	for (m = 0; m < sample->m; ++m) {
 		if (NV_MAT_V(labels, m, 0) != (float)hair_label) {

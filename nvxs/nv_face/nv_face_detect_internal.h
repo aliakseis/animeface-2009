@@ -1,7 +1,7 @@
 #ifndef __NV_FACE_DETECTION_INTERNAL_H
 #define __NV_FACE_DETECTION_INTERNAL_H
 
-#include <opencv/cv.h>
+#include <opencv2/core/types_c.h>
 #include <stdio.h>
 
 typedef struct candidate {

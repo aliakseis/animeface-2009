@@ -76,7 +76,7 @@ void nv_face_haarlike(nv_face_haarlike_normalize_e normalize_type,
 	cv::Rect roi)
 {
 	int ix, iy, n;
-	float v, vmax, vmin;
+	float vmax, vmin;
 	float xscale = roi.width / 32.0f;
 	float yscale = roi.height / 32.0f;
 	float ystep = yscale;

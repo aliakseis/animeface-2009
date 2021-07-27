@@ -2,7 +2,7 @@
 #define __NV_FACE_DETECTION_H
 #include "nv_core.h"
 #include "nv_ml.h"
-#include <opencv/cv.h>
+#include <opencv2/core/types_c.h>
 
 #ifdef __cplusplus
 extern "C" {
