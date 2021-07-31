@@ -5,7 +5,7 @@
 
 nv_cov_t *nv_cov_alloc(int n)
 {
-	nv_cov_t *cov = (nv_cov_t *)malloc(sizeof(nv_cov_t));
+	auto *cov = static_cast<nv_cov_t *>(malloc(sizeof(nv_cov_t)));
 
 	cov->n = n;
 	cov->u = nv_matrix_alloc(n, 1);
@@ -20,7 +20,7 @@ void nv_cov_free(nv_cov_t **cov)
 	nv_matrix_free(&(*cov)->u);
 
 	free(*cov);
-	*cov = NULL;
+	*cov = nullptr;
 }
 
 void nv_cov_eigen(nv_cov_t *cov, const nv_matrix_t *data)
@@ -32,11 +32,13 @@ void nv_cov(nv_matrix_t *cov,
 			nv_matrix_t *u,
 			const nv_matrix_t *data)
 {
-	int m, n, i;
+	int m;
+	int n;
+	int i;
 	int alloc_u = 0;
-	float factor = 1.0f / data->m;
+	float factor = 1.0F / data->m;
 
-	if (u == NULL) {
+	if (u == nullptr) {
 		u = nv_matrix_alloc(cov->n, 1);
 		alloc_u =1;
 	}
@@ -55,7 +57,7 @@ void nv_cov(nv_matrix_t *cov,
 	nv_matrix_zero(cov);
 	for (n = 0; n < cov->n; ++n) {
 		for (m = n; m < cov->m; ++m) {
-			float v = 0.0f;
+			float v = 0.0F;
 			for (i = 0; i < data->m; ++i) {
 				float a = NV_MAT_V(data, i, n) - NV_MAT_V(u, 0, n);
 				float b = NV_MAT_V(data, i, m) - NV_MAT_V(u, 0, m);
@@ -65,7 +67,7 @@ void nv_cov(nv_matrix_t *cov,
 		}
 	}
 
-	if (alloc_u) {
+	if (alloc_u != 0) {
 		nv_matrix_free(&u);
 	}
 }

@@ -27,7 +27,10 @@ nv_get_skin_color(nv_color_t *skin_color,
 	nv_matrix_t *labels = nv_matrix_alloc(1, NV_SKIN_COLOR_SAMPLES);
 	nv_matrix_t *means = nv_matrix_alloc(3, NV_SKIN_COLOR_CLASS);
 	nv_matrix_t *count = nv_matrix_alloc(1, NV_SKIN_COLOR_CLASS);
-	int m, max_label, k, skin_m;
+	int m;
+	int max_label;
+	int k;
+	int skin_m;
 	cv::Rect skin_rect;
 
 	// 目と口の間
@@ -39,8 +42,8 @@ nv_get_skin_color(nv_color_t *skin_color,
 	skin_rect.height = face->mouth.y - skin_rect.y;
 
 	for (m = 0; m < NV_SKIN_COLOR_SAMPLES / 2; ++m) {
-		int x = skin_rect.x + (int)(skin_rect.width * nv_rand());
-		int y = skin_rect.y + (int)(skin_rect.height * nv_rand());
+		int x = skin_rect.x + static_cast<int>(skin_rect.width * nv_rand());
+		int y = skin_rect.y + static_cast<int>(skin_rect.height * nv_rand());
 
 		nv_color_bgr2euclidean_scalar(sample, m, img, NV_MAT_M(img, y, x));
 	}
@@ -51,8 +54,8 @@ nv_get_skin_color(nv_color_t *skin_color,
 	skin_rect.height = face->nose.y - skin_rect.y;
 
 	for (m = NV_SKIN_COLOR_SAMPLES / 2; m < NV_SKIN_COLOR_SAMPLES; ++m) {
-		int x = skin_rect.x + (int)(skin_rect.width * nv_rand());
-		int y = skin_rect.y + (int)(skin_rect.height * nv_rand());
+		int x = skin_rect.x + static_cast<int>(skin_rect.width * nv_rand());
+		int y = skin_rect.y + static_cast<int>(skin_rect.height * nv_rand());
 
 		nv_color_bgr2euclidean_scalar(sample, m, img, NV_MAT_M(img, y, x));
 	}
@@ -68,7 +71,7 @@ nv_get_skin_color(nv_color_t *skin_color,
 	// 肌の分散共分散行列,固有値を計算
 	skin_m = 0;
 	for (m = 0; m < NV_SKIN_COLOR_SAMPLES; ++m) {
-		if (NV_MAT_V(labels, m, 0) == (float)max_label) {
+		if (NV_MAT_V(labels, m, 0) == static_cast<float>(max_label)) {
 			nv_vector_copy(skin_sample, skin_m, sample, m);
 			++skin_m;
 		}
@@ -99,7 +102,10 @@ static void nv_get_hair_color(nv_color_t *hair_color,
 	nv_matrix_t *count = nv_matrix_alloc(1, NV_HAIR_COLOR_CLASS);
 	nv_matrix_t *skin_likelihood = nv_matrix_alloc(1, NV_HAIR_COLOR_SAMPLES);
 	nv_matrix_t *likelihood_means = nv_matrix_alloc(1, NV_HAIR_COLOR_CLASS);
-	int m, max_label, skin_label, hair_m;
+	int m;
+	int max_label;
+	int skin_label;
+	int hair_m;
 	cv::Rect hair_rect;
 	int k;
 
@@ -114,8 +120,8 @@ static void nv_get_hair_color(nv_color_t *hair_color,
 	}
 
 	for (m = 0; m < sample->m; ++m) {
-		int x = hair_rect.x + (int)(hair_rect.width * nv_rand());
-		int y = hair_rect.y + (int)(hair_rect.height * nv_rand());
+		int x = hair_rect.x + static_cast<int>(hair_rect.width * nv_rand());
+		int y = hair_rect.y + static_cast<int>(hair_rect.height * nv_rand());
 
 		nv_color_bgr2euclidean_scalar(sample, m, img, NV_MAT_M(img, y, x));
 	}
@@ -128,7 +134,7 @@ static void nv_get_hair_color(nv_color_t *hair_color,
 	Eigen::Map<Eigen::VectorXf>(likelihood_means->v, likelihood_means->m).maxCoeff(&skin_label);
 	hair_m = 0;
 	for (m = 0; m < sample->m; ++m) {
-		if (NV_MAT_V(labels, m, 0) != (float)skin_label) {
+		if (NV_MAT_V(labels, m, 0) != static_cast<float>(skin_label)) {
 			nv_vector_copy(sample, hair_m, sample, m);
 			++hair_m;
 		}
@@ -147,7 +153,7 @@ static void nv_get_hair_color(nv_color_t *hair_color,
 	// 髪の分散共分散行列,固有値を計算
 	hair_m = 0;
 	for (m = 0; m < sample->m; ++m) {
-		if (NV_MAT_V(labels, m, 0) == (float)max_label) {
+		if (NV_MAT_V(labels, m, 0) == static_cast<float>(max_label)) {
 			nv_vector_copy(hair_sample, hair_m, sample, m);
 			++hair_m;
 		}
@@ -167,12 +173,12 @@ static void nv_get_hair_color(nv_color_t *hair_color,
 // [3]countで降順ソート用
 static int nv_cmp_means(const void *p1, const void *p2)
 {
-	float *lhs = (float *)p1;
-	float *rhs = (float *)p2;
+	auto *lhs = (float *)p1;
+	auto *rhs = (float *)p2;
 
 	if (lhs[3] < rhs[3]) {
 		return 1;
-	} else if (lhs[3] > rhs[3]) {
+	} if (lhs[3] > rhs[3]) {
 		return -1;
 	}
 	return 0;
@@ -187,8 +193,10 @@ static void nv_get_eye_color(nv_color_t *eye_colors,
 							 const CvRect *eye_rect,
 							 const nv_matrix_t *img)
 {
-	int m, c;
-	int skin_label, hair_label;
+	int m;
+	int c;
+	int skin_label;
+	int hair_label;
 	int color_samples = sample->m;
 
 	nv_cov_t *eye_cov = nv_cov_alloc(skin_cov->n);
@@ -201,7 +209,8 @@ static void nv_get_eye_color(nv_color_t *eye_colors,
 	nv_matrix_t *sorted_means = nv_matrix_alloc(3 + 1, NV_EYE_COLOR_CLASS);
 	int k;
 	int eye_m;
-	int x, y;
+	int x;
+	int y;
 
 	// 目の色サンプリング
 	m = 0;
@@ -222,7 +231,7 @@ static void nv_get_eye_color(nv_color_t *eye_colors,
 	Eigen::Map<Eigen::VectorXf>(likelihood_means->v, likelihood_means->m).maxCoeff(&skin_label);
 	eye_m = 0;
 	for (m = 0; m < sample->m; ++m) {
-		if (NV_MAT_V(labels, m, 0) != (float)skin_label) {
+		if (NV_MAT_V(labels, m, 0) != static_cast<float>(skin_label)) {
 			nv_vector_copy(sample, eye_m, sample, m);
 			++eye_m;
 		}
@@ -239,7 +248,7 @@ static void nv_get_eye_color(nv_color_t *eye_colors,
 	Eigen::Map<Eigen::VectorXf>(likelihood_means->v, likelihood_means->m).maxCoeff(&hair_label);
 	eye_m = 0;
 	for (m = 0; m < sample->m; ++m) {
-		if (NV_MAT_V(labels, m, 0) != (float)hair_label) {
+		if (NV_MAT_V(labels, m, 0) != static_cast<float>(hair_label)) {
 			nv_vector_copy(sample, eye_m, sample, m);
 			++eye_m;
 		}
@@ -300,7 +309,9 @@ nv_get_eye_colors(nv_color_t *eye_colors,
 	nv_matrix_t *means = nv_matrix_alloc(3, NV_EYE_COLOR_CLASS);
 	nv_matrix_t *count = nv_matrix_alloc(1, NV_EYE_COLOR_CLASS);
 	nv_matrix_t *sorted_means = nv_matrix_alloc(3 + 1, NV_EYE_COLOR_CLASS);
-	int m, c, epoch;
+	int m;
+	int c;
+	int epoch;
 
 	// 左目
 	nv_get_eye_color(
@@ -367,18 +378,18 @@ nv_get_eye_colors(nv_color_t *eye_colors,
 
 float nv_eye_ratio(const nv_face_position_t *face)
 {
-	float left = (float)face->left_eye.width / face->left_eye.height;
-	float right = (float)face->right_eye.width / face->right_eye.height;
+	float left = static_cast<float>(face->left_eye.width) / face->left_eye.height;
+	float right = static_cast<float>(face->right_eye.width) / face->right_eye.height;
 
 	return std::max(left, right);
 }
 
 float nv_face_ratio(const nv_face_position_t *face)
 {
-	float left = (float)face->left_eye.width / face->left_eye.height;
-	float right = (float)face->right_eye.width / face->right_eye.height;
-	float eye_height = (float)((left > right) ? face->left_eye.height: face->right_eye.height);
-	float face_height = (float)std::max(face->left_eye.y, face->right_eye.y) - face->chin.y;
+	float left = static_cast<float>(face->left_eye.width) / face->left_eye.height;
+	float right = static_cast<float>(face->right_eye.width) / face->right_eye.height;
+	auto eye_height = static_cast<float>((left > right) ? face->left_eye.height: face->right_eye.height);
+	float face_height = static_cast<float>(std::max(face->left_eye.y, face->right_eye.y)) - face->chin.y;
 
 	return face_height / eye_height;
 }

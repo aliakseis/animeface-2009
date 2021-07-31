@@ -26,10 +26,10 @@ typedef struct
 #ifdef __cplusplus
 }
 
-int nv_mlp_predict_label(const nv_mlp_t *mlp, const Eigen::Ref<Eigen::Matrix<float, NV_FACE_HAARLIKE_DIM, 1> > x);
-double nv_mlp_predict_d(const nv_mlp_t *mlp, const Eigen::Ref<Eigen::Matrix<float, NV_FACE_HAARLIKE_DIM, 1> > x);
-double nv_mlp_bagging_predict_d(const nv_mlp_t **mlp, int nmlp, const Eigen::Ref<Eigen::Matrix<float, NV_FACE_HAARLIKE_DIM, 1> > x);
-void nv_mlp_regression(const nv_mlp_t *mlp, const Eigen::Ref<Eigen::Matrix<float, NV_FACE_HAARLIKE_DIM, 1> > x, nv_matrix_t *out);
+int nv_mlp_predict_label(const nv_mlp_t *mlp, Eigen::Ref<Eigen::Matrix<float, NV_FACE_HAARLIKE_DIM, 1> > x);
+double nv_mlp_predict_d(const nv_mlp_t *mlp, Eigen::Ref<Eigen::Matrix<float, NV_FACE_HAARLIKE_DIM, 1> > x);
+double nv_mlp_bagging_predict_d(const nv_mlp_t **mlp, int nmlp, Eigen::Ref<Eigen::Matrix<float, NV_FACE_HAARLIKE_DIM, 1> > x);
+void nv_mlp_regression(const nv_mlp_t *mlp, Eigen::Ref<Eigen::Matrix<float, NV_FACE_HAARLIKE_DIM, 1> > x, nv_matrix_t *out);
 #endif
 
 #endif

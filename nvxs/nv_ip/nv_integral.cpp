@@ -5,7 +5,8 @@
 
 void nv_integral(nv_matrix_t *integral, const nv_matrix_t *img, int channel)
 {
-	int row, col;
+	int row;
+	int col;
 	int erow = img->rows + 1;
 	int ecol = img->cols + 1;
 

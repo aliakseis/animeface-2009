@@ -1,5 +1,5 @@
 #include <Eigen/Dense>
-#include <math.h>
+#include <cmath>
 #include "nv_core.h"
 #include "nv_num.h"
 #include "nv_ml_gaussian.h"

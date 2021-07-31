@@ -14,11 +14,11 @@
 
 static float v_0_255(float v)
 {
-	if (v > 255.0f) {
-		return 255.0f;
+	if (v > 255.0F) {
+		return 255.0F;
 	}
-	if (v < 0.0f) {
-		return 0.0f;
+	if (v < 0.0F) {
+		return 0.0F;
 	}
 	return v;
 }
@@ -31,9 +31,9 @@ void nv_color_euclidean2bgr_scalar(nv_matrix_t *bgr, int bgr_m, const nv_matrix_
 
 	assert(ec->n == bgr->n && ec->n == 3);
 
-	NV_MAT_V(bgr, bgr_m, NV_CH_B) = floorf((4.0f * c3 - 6.0f * c2 + 6.0f * c1 + 255.0f) / 6.0f);
-	NV_MAT_V(bgr, bgr_m, NV_CH_G) = floorf((-4.0f * c3 + 3.0f * c1 + 510.0f) / 3.0f);
-	NV_MAT_V(bgr, bgr_m, NV_CH_R) = floorf((4.0f * c3 + 6.0f * c2 + 6.0f * c1 - 1275.0f) / 6.0f);
+	NV_MAT_V(bgr, bgr_m, NV_CH_B) = floorf((4.0F * c3 - 6.0F * c2 + 6.0F * c1 + 255.0F) / 6.0F);
+	NV_MAT_V(bgr, bgr_m, NV_CH_G) = floorf((-4.0F * c3 + 3.0F * c1 + 510.0F) / 3.0F);
+	NV_MAT_V(bgr, bgr_m, NV_CH_R) = floorf((4.0F * c3 + 6.0F * c2 + 6.0F * c1 - 1275.0F) / 6.0F);
 	NV_MAT_V(bgr, bgr_m, 0) = v_0_255(NV_MAT_V(bgr, bgr_m, 0));
 	NV_MAT_V(bgr, bgr_m, 1) = v_0_255(NV_MAT_V(bgr, bgr_m, 1));
 	NV_MAT_V(bgr, bgr_m, 2) = v_0_255(NV_MAT_V(bgr, bgr_m, 2));
@@ -42,7 +42,7 @@ void nv_color_euclidean2bgr_scalar(nv_matrix_t *bgr, int bgr_m, const nv_matrix_
 void nv_color_bgr2euclidean_scalar(nv_matrix_t *ec, int ec_m, const nv_matrix_t *bgr, int bgr_m)
 {
 	assert(ec->n == bgr->n && ec->n == 3);
-	NV_MAT_V(ec, ec_m, 0) = floorf((NV_MAT_V(bgr, bgr_m, NV_CH_R) + NV_MAT_V(bgr, bgr_m, NV_CH_G) + NV_MAT_V(bgr, bgr_m, NV_CH_B)) / 3.0f);
-	NV_MAT_V(ec, ec_m, 1) = floorf((NV_MAT_V(bgr, bgr_m, NV_CH_R) + (255.0f - NV_MAT_V(bgr, bgr_m, NV_CH_B))) / 2.0f);
-	NV_MAT_V(ec, ec_m, 2) = floorf((NV_MAT_V(bgr, bgr_m, NV_CH_R) + 2.0f * (255.0f - NV_MAT_V(bgr, bgr_m, NV_CH_G)) + NV_MAT_V(bgr, bgr_m, NV_CH_B)) / 4.0f);
+	NV_MAT_V(ec, ec_m, 0) = floorf((NV_MAT_V(bgr, bgr_m, NV_CH_R) + NV_MAT_V(bgr, bgr_m, NV_CH_G) + NV_MAT_V(bgr, bgr_m, NV_CH_B)) / 3.0F);
+	NV_MAT_V(ec, ec_m, 1) = floorf((NV_MAT_V(bgr, bgr_m, NV_CH_R) + (255.0F - NV_MAT_V(bgr, bgr_m, NV_CH_B))) / 2.0F);
+	NV_MAT_V(ec, ec_m, 2) = floorf((NV_MAT_V(bgr, bgr_m, NV_CH_R) + 2.0F * (255.0F - NV_MAT_V(bgr, bgr_m, NV_CH_G)) + NV_MAT_V(bgr, bgr_m, NV_CH_B)) / 4.0F);
 }

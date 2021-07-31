@@ -1,7 +1,7 @@
 #include "nv_core.h"
 #include "nv_core_matrix.h"
 #include "nv_core_util.h"
-#include <time.h>
+#include <ctime>
 #ifdef _OPENMP
 #include <omp.h>
 #endif
@@ -32,7 +32,7 @@ float nv_rand(void)
 	if (idum < 0) { 
 		idum += IM; 
 	}
-	ans = (float)(AM * idum);
+	ans = static_cast<float>(AM * idum);
 	idum ^= MASK;
 	idums[thread_idx] = idum;
 

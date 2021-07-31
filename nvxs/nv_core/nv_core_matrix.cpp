@@ -9,13 +9,13 @@ nv_matrix_t *nv_matrix_alloc(int n, int m)
 	
 	int step = n * sizeof(float);//(n + 4 - (n & 3)) * sizeof(float); // SSE2
 	int mem_size = step * m + sizeof(nv_matrix_t) + 0x10;
-	nv_matrix_t *matrix = (nv_matrix_t *)malloc(mem_size);
+	auto *matrix = static_cast<nv_matrix_t *>(malloc(mem_size));
 
-	if (matrix == NULL) {
-		return NULL;
+	if (matrix == nullptr) {
+		return nullptr;
 	}
-	mem = ((char *)matrix) + sizeof(nv_matrix_t);
-	matrix->v = (float *)(((char *)mem) + 0x10 - ((size_t)mem & 0xf));
+	mem = (reinterpret_cast<char *>(matrix)) + sizeof(nv_matrix_t);
+	matrix->v = reinterpret_cast<float *>((static_cast<char *>(mem)) + 0x10 - ((size_t)mem & 0xf));
 	matrix->n = n;
 	matrix->m = m;
 	matrix->cols = m;
@@ -44,9 +44,9 @@ void nv_vector_zero(nv_matrix_t *mat, int m)
 
 void nv_matrix_free(nv_matrix_t **matrix)
 {
-	if (*matrix != NULL) {
+	if (*matrix != nullptr) {
 		free(*matrix);
-		*matrix = NULL;
+		*matrix = nullptr;
 	}
 }
 
@@ -66,13 +66,13 @@ void nv_matrix_m(nv_matrix_t *mat, int m)
 
 nv_matrix_t *nv_from_image(IplImage *img)
 {
-	nv_matrix_t *ret = (nv_matrix_t*)malloc(sizeof(nv_matrix_t));
+	auto *ret = static_cast<nv_matrix_t*>(malloc(sizeof(nv_matrix_t)));
 	ret->cols = img->width;
 	ret->rows = img->height;
 	ret->m = ret->cols * ret->rows;
 	ret->n = img->nChannels;
 	assert(img->depth == IPL_DEPTH_32F);
-	ret->v = (float*)img->imageData;
+	ret->v = reinterpret_cast<float*>(img->imageData);
 	return ret;
 }
 

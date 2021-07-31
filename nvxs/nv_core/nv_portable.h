@@ -1,20 +1,20 @@
 #ifndef __NV_PORTABLE_H
 #define __NV_PORTABLE_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+//#ifdef __cplusplus
+//extern "C" {
+//#endif
 
 // 標準Cヘッダー
 
 //#define _CRTDBG_MAP_ALLOC
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
-#include <float.h>
-#include <ctype.h>
-#include <assert.h>
-#include <errno.h>
+#include <cstdlib>
+#include <cstring>
+#include <cmath>
+#include <cfloat>
+#include <cctype>
+#include <cassert>
+#include <cerrno>
 
 // OpenMP 
 #if (_MSC_VER >= 1400 && defined(_OPENMP))
@@ -37,9 +37,9 @@ extern "C" {
 // roundf
 #define NV_ROUND_INT(x) ((int)(0.5f + x))
 
-#ifdef __cplusplus
-}
-#endif
+//#ifdef __cplusplus
+//}
+//#endif
 
 
 #endif

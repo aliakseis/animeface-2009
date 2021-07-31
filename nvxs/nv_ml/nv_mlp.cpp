@@ -1,5 +1,5 @@
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 #include <Eigen/Dense>
 #include "nv_core.h"
 #include "nv_ml_mlp.h"
@@ -9,7 +9,7 @@
 // 2 Layer
 
 static float nv_mlp_sigmoid(float a) {
-	return 1.0f / (1.0f + expf(-a));
+	return 1.0F / (1.0F + expf(-a));
 }
 
 // クラス分類
@@ -23,7 +23,7 @@ int nv_mlp_predict_label(const nv_mlp_t *mlp, const Eigen::Ref<Eigen::Matrix<flo
 	Eigen::VectorXf y = hidden_w*(input_w*x + input_bias).unaryExpr(&nv_mlp_sigmoid) + hidden_bias;
 	int l;
 	y.maxCoeff(&l);
-	return (y[l] > 0.f) ? l : -1;
+	return (y[l] > 0.F) ? l : -1;
 }
 
 double nv_mlp_predict_d(const nv_mlp_t *mlp, const Eigen::Ref<Eigen::Matrix<float, NV_FACE_HAARLIKE_DIM, 1> > x)
@@ -37,7 +37,7 @@ double nv_mlp_predict_d(const nv_mlp_t *mlp, const Eigen::Ref<Eigen::Matrix<floa
 
 double nv_mlp_bagging_predict_d(const nv_mlp_t **mlp, int nmlp, const Eigen::Ref<Eigen::Matrix<float, NV_FACE_HAARLIKE_DIM, 1> > x)
 {
-	double p = 0.0f;
+	double p = 0.0F;
 	double factor = 1.0 / nmlp;
 	int i;
 	
